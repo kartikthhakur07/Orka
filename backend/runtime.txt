@@ -1,1 +1,2 @@
-3.11.0
+Set-Content -Path runtime.txt -Value "3.11.9" -NoNewline
+type runtime.txt   # check: "3.11.9" dikhna chahiye
