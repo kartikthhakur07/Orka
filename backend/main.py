@@ -28,15 +28,23 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
+    allow_origin_regex=r".*",
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 
 # ---------------------------------------------------------------------------
-# Startup
+# Database Initialization
 # ---------------------------------------------------------------------------
+
+try:
+    create_tables()
+    seed_database()
+except Exception as e:
+    print(f"[ORKA] Database initialization notice: {e}")
+
 
 @app.on_event("startup")
 def on_startup():
