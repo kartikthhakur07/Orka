@@ -1,11 +1,11 @@
 """
 ORKA v2 - Automated Test Suite
-Pytest integration for API endpoints, scoring algorithms, burnout analysis, and WFH recommendations.
+Pytest integration for API endpoints, IBM HR Analytics dataset, scoring algorithms, burnout analysis, and WFH recommendations.
 """
 
 import pytest
 from fastapi.testclient import TestClient
-from main import app, compute_assignment_score, compute_wfh_score, skill_match_score, get_risk_level
+from main import app, compute_assignment_score, compute_wfh_score, skill_match_score, get_risk_level, compute_ibm_burnout_score
 from database import create_tables, seed_database
 
 # Ensure database tables and seed data are populated for testing
@@ -40,8 +40,8 @@ def test_dashboard_endpoint():
     assert "wfh_rate" in data
 
 
-def test_team_members_endpoint():
-    """Verify team members list returned correctly."""
+def test_team_members_endpoint_ibm_hr():
+    """Verify team members list returned with full IBM HR Analytics dataset metrics."""
     response = client.get("/api/team")
     assert response.status_code == 200
     data = response.json()
@@ -52,6 +52,13 @@ def test_team_members_endpoint():
     assert "name" in first_member
     assert "skills" in first_member
     assert isinstance(first_member["skills"], list)
+
+    # IBM HR Analytics Dataset attributes
+    assert "work_life_balance" in first_member
+    assert "job_satisfaction" in first_member
+    assert "env_satisfaction" in first_member
+    assert "overtime" in first_member
+    assert "attrition_label" in first_member
 
 
 def test_skill_match_and_assignment_logic():
@@ -83,8 +90,8 @@ def test_task_assignment_endpoint():
     assert data["confidence"] > 0
 
 
-def test_burnout_radar_endpoint():
-    """Test GET /api/burnout endpoint."""
+def test_burnout_radar_endpoint_ibm_hr():
+    """Test GET /api/burnout endpoint with IBM HR Attrition calculation."""
     response = client.get("/api/burnout")
     assert response.status_code == 200
     data = response.json()
@@ -93,6 +100,9 @@ def test_burnout_radar_endpoint():
     assert "critical_count" in data
     assert "avg_burnout" in data
     assert data["avg_burnout"] >= 0
+    first_member = data["members"][0]
+    assert "work_life_balance" in first_member
+    assert "job_satisfaction" in first_member
 
 
 def test_wfh_decider_endpoint():

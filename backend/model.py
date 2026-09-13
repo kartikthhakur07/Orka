@@ -62,6 +62,17 @@ class TeamMember(Base):
     burnout_triggers = Column(Text, default="[]")       # JSON list
     wfh_productivity = Column(Float, default=0.0)       # 0-100
 
+    # IBM HR Analytics Attrition Dataset fields
+    work_life_balance = Column(Integer, default=3)      # 1 (Bad) - 4 (Best)
+    job_satisfaction = Column(Integer, default=3)       # 1 (Low) - 4 (Very High)
+    env_satisfaction = Column(Integer, default=3)       # 1 (Low) - 4 (Very High)
+    job_involvement = Column(Integer, default=3)        # 1 (Low) - 4 (Very High)
+    overtime = Column(String(10), default="No")         # Yes / No
+    years_at_company = Column(Integer, default=3)
+    years_with_manager = Column(Integer, default=2)
+    monthly_income = Column(Float, default=8000.0)
+    attrition_label = Column(String(10), default="No")  # Yes / No
+
 
 class Task(Base):
     """Represents a work task that can be assigned to team members."""

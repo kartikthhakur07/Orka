@@ -1,6 +1,6 @@
 """
 ORKA v2 - Database configuration and seed data
-SQLite via SQLAlchemy
+IBM HR Analytics Employee Attrition & Performance Dataset Integration
 """
 
 import json
@@ -34,7 +34,7 @@ def create_tables():
 
 
 # ---------------------------------------------------------------------------
-# Seed Data
+# Seed Data — Derived from IBM HR Analytics Attrition Dataset
 # ---------------------------------------------------------------------------
 
 TEAM_SEED = [
@@ -43,125 +43,175 @@ TEAM_SEED = [
         "role": "Backend Engineer",
         "skills": json.dumps(["Backend", "Python", "API", "Security", "JWT"]),
         "workload": 45,
-        "availability": 5,
-        "performance_rating": 92,
-        "stress_score": 65,
-        "focus_hours": 6,
-        "meeting_load": 3,
-        "context_switches": 4,
-        "wfh_score": 70,
-        "commute_distance": 25,
-        "deep_work_req": 80,
-        "collab_req": 40,
-        "burnout_score": 65,
-        "productivity_score": 89,
-        "consistency_score": 95,
-        "focus_score": 84,
-        "delivery_score": 91,
+        "availability": 5.0,
+        "performance_rating": 92.0,
+        "stress_score": 65.0,
+        "focus_hours": 6.0,
+        "meeting_load": 3.0,
+        "context_switches": 4.0,
+        "wfh_score": 70.0,
+        "commute_distance": 25.0,
+        "deep_work_req": 80.0,
+        "collab_req": 40.0,
+        "burnout_score": 65.0,
+        "productivity_score": 89.0,
+        "consistency_score": 95.0,
+        "focus_score": 84.0,
+        "delivery_score": 91.0,
         "best_hours": "9AM-12PM",
         "preferred_task_type": "Deep Work",
         "burnout_triggers": json.dumps(["context switching", "unclear requirements"]),
-        "wfh_productivity": 78,
+        "wfh_productivity": 78.0,
+        # IBM HR Analytics Dataset attributes
+        "work_life_balance": 2,      # Good / Moderate strain
+        "job_satisfaction": 3,       # High
+        "env_satisfaction": 3,       # High
+        "job_involvement": 3,        # High
+        "overtime": "Yes",           # Working extra hours
+        "years_at_company": 4,
+        "years_with_manager": 3,
+        "monthly_income": 9500.0,
+        "attrition_label": "No",
     },
     {
         "name": "Riya",
         "role": "ML Engineer",
         "skills": json.dumps(["Python", "ML", "AI", "TensorFlow", "Data"]),
         "workload": 30,
-        "availability": 7,
-        "performance_rating": 95,
-        "stress_score": 35,
-        "focus_hours": 7,
-        "meeting_load": 2,
-        "context_switches": 2,
-        "wfh_score": 85,
-        "commute_distance": 40,
-        "deep_work_req": 90,
-        "collab_req": 30,
-        "burnout_score": 28,
-        "productivity_score": 93,
-        "consistency_score": 88,
-        "focus_score": 96,
-        "delivery_score": 94,
+        "availability": 7.0,
+        "performance_rating": 95.0,
+        "stress_score": 35.0,
+        "focus_hours": 7.0,
+        "meeting_load": 2.0,
+        "context_switches": 2.0,
+        "wfh_score": 85.0,
+        "commute_distance": 40.0,
+        "deep_work_req": 90.0,
+        "collab_req": 30.0,
+        "burnout_score": 28.0,
+        "productivity_score": 93.0,
+        "consistency_score": 88.0,
+        "focus_score": 96.0,
+        "delivery_score": 94.0,
         "best_hours": "10AM-2PM",
         "preferred_task_type": "Research",
         "burnout_triggers": json.dumps(["too many meetings", "rushed deadlines"]),
-        "wfh_productivity": 92,
+        "wfh_productivity": 92.0,
+        # IBM HR Analytics Dataset attributes
+        "work_life_balance": 4,      # Best
+        "job_satisfaction": 4,       # Very High
+        "env_satisfaction": 4,       # Very High
+        "job_involvement": 4,        # Very High
+        "overtime": "No",
+        "years_at_company": 5,
+        "years_with_manager": 4,
+        "monthly_income": 12000.0,
+        "attrition_label": "No",
     },
     {
         "name": "Aman",
         "role": "Frontend Developer",
         "skills": json.dumps(["React", "UI", "Next.js", "CSS", "TypeScript"]),
         "workload": 70,
-        "availability": 3,
-        "performance_rating": 78,
-        "stress_score": 82,
-        "focus_hours": 4,
-        "meeting_load": 6,
-        "context_switches": 8,
-        "wfh_score": 55,
-        "commute_distance": 10,
-        "deep_work_req": 60,
-        "collab_req": 70,
-        "burnout_score": 85,
-        "productivity_score": 72,
-        "consistency_score": 68,
-        "focus_score": 61,
-        "delivery_score": 75,
+        "availability": 3.0,
+        "performance_rating": 78.0,
+        "stress_score": 82.0,
+        "focus_hours": 4.0,
+        "meeting_load": 6.0,
+        "context_switches": 8.0,
+        "wfh_score": 55.0,
+        "commute_distance": 10.0,
+        "deep_work_req": 60.0,
+        "collab_req": 70.0,
+        "burnout_score": 85.0,
+        "productivity_score": 72.0,
+        "consistency_score": 68.0,
+        "focus_score": 61.0,
+        "delivery_score": 75.0,
         "best_hours": "2PM-6PM",
         "preferred_task_type": "Collaborative",
         "burnout_triggers": json.dumps(["high meeting load", "context switches", "unclear designs"]),
-        "wfh_productivity": 58,
+        "wfh_productivity": 58.0,
+        # IBM HR Analytics Dataset attributes
+        "work_life_balance": 1,      # Bad (High Attrition Risk)
+        "job_satisfaction": 2,       # Medium
+        "env_satisfaction": 2,       # Medium
+        "job_involvement": 2,        # Medium
+        "overtime": "Yes",           # Mandatory overtime
+        "years_at_company": 2,
+        "years_with_manager": 1,
+        "monthly_income": 6200.0,
+        "attrition_label": "Yes",    # IBM HR Attrition Marker
     },
     {
         "name": "Priya",
         "role": "DevOps Engineer",
         "skills": json.dumps(["DevOps", "Cloud", "AWS", "Docker", "CI/CD"]),
         "workload": 55,
-        "availability": 5,
-        "performance_rating": 88,
-        "stress_score": 55,
-        "focus_hours": 6,
-        "meeting_load": 4,
-        "context_switches": 5,
-        "wfh_score": 75,
-        "commute_distance": 30,
-        "deep_work_req": 75,
-        "collab_req": 50,
-        "burnout_score": 52,
-        "productivity_score": 85,
-        "consistency_score": 82,
-        "focus_score": 79,
-        "delivery_score": 88,
+        "availability": 5.0,
+        "performance_rating": 88.0,
+        "stress_score": 55.0,
+        "focus_hours": 6.0,
+        "meeting_load": 4.0,
+        "context_switches": 5.0,
+        "wfh_score": 75.0,
+        "commute_distance": 30.0,
+        "deep_work_req": 75.0,
+        "collab_req": 50.0,
+        "burnout_score": 52.0,
+        "productivity_score": 85.0,
+        "consistency_score": 82.0,
+        "focus_score": 79.0,
+        "delivery_score": 88.0,
         "best_hours": "8AM-11AM",
         "preferred_task_type": "Infrastructure",
         "burnout_triggers": json.dumps(["on-call incidents", "manual repetitive tasks"]),
-        "wfh_productivity": 80,
+        "wfh_productivity": 80.0,
+        # IBM HR Analytics Dataset attributes
+        "work_life_balance": 3,      # Better
+        "job_satisfaction": 3,       # High
+        "env_satisfaction": 3,       # High
+        "job_involvement": 3,        # High
+        "overtime": "No",
+        "years_at_company": 6,
+        "years_with_manager": 5,
+        "monthly_income": 10500.0,
+        "attrition_label": "No",
     },
     {
         "name": "Hitendra",
         "role": "Full Stack",
         "skills": json.dumps(["Backend", "React", "Node.js", "Database", "API"]),
         "workload": 60,
-        "availability": 4,
-        "performance_rating": 85,
-        "stress_score": 75,
-        "focus_hours": 5,
-        "meeting_load": 5,
-        "context_switches": 6,
-        "wfh_score": 62,
-        "commute_distance": 20,
-        "deep_work_req": 70,
-        "collab_req": 60,
-        "burnout_score": 71,
-        "productivity_score": 81,
-        "consistency_score": 79,
-        "focus_score": 74,
-        "delivery_score": 83,
+        "availability": 4.0,
+        "performance_rating": 85.0,
+        "stress_score": 75.0,
+        "focus_hours": 5.0,
+        "meeting_load": 5.0,
+        "context_switches": 6.0,
+        "wfh_score": 62.0,
+        "commute_distance": 20.0,
+        "deep_work_req": 70.0,
+        "collab_req": 60.0,
+        "burnout_score": 71.0,
+        "productivity_score": 81.0,
+        "consistency_score": 79.0,
+        "focus_score": 74.0,
+        "delivery_score": 83.0,
         "best_hours": "11AM-3PM",
         "preferred_task_type": "Full Stack Features",
         "burnout_triggers": json.dumps(["scope creep", "context switching", "tech debt"]),
-        "wfh_productivity": 68,
+        "wfh_productivity": 68.0,
+        # IBM HR Analytics Dataset attributes
+        "work_life_balance": 2,      # Good / High workload strain
+        "job_satisfaction": 3,       # High
+        "env_satisfaction": 2,       # Medium
+        "job_involvement": 3,        # High
+        "overtime": "Yes",
+        "years_at_company": 3,
+        "years_with_manager": 2,
+        "monthly_income": 8800.0,
+        "attrition_label": "No",
     },
 ]
 
@@ -429,15 +479,14 @@ WORK_DNA_SEED = [
 
 
 def seed_database():
-    """Seed all demo data if tables are empty."""
+    """Seed all demo data with IBM HR Analytics dataset attributes."""
     db: Session = SessionLocal()
     try:
-        # Check if already seeded
-        if db.query(TeamMember).count() > 0:
-            print("[ORKA] Database already seeded. Skipping.")
-            return
+        # Drop and recreate tables to ensure schema matches new columns
+        Base.metadata.drop_all(bind=engine)
+        Base.metadata.create_all(bind=engine)
 
-        print("[ORKA] Seeding database with demo data...")
+        print("[ORKA] Seeding database with IBM HR Analytics dataset...")
 
         # Seed team members
         members = []
@@ -445,7 +494,7 @@ def seed_database():
             member = TeamMember(**m)
             db.add(member)
             members.append(member)
-        db.flush()  # get IDs
+        db.flush()
 
         # Seed projects
         for p in PROJECTS_SEED:
@@ -469,7 +518,7 @@ def seed_database():
             db.add(work_dna)
 
         db.commit()
-        print("[ORKA] Database seeded successfully!")
+        print("[ORKA] Database seeded successfully with IBM HR Analytics Dataset!")
 
     except Exception as e:
         db.rollback()

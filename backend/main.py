@@ -1,7 +1,4 @@
-"""
-ORKA v2 - Main FastAPI Application
-Complete backend with all API endpoints for the ORKA AI Project Management Platform
-"""
+
 
 import json
 import math
@@ -124,15 +121,43 @@ def get_risk_level(burnout_score: float) -> str:
         return "critical"
 
 
+def compute_ibm_burnout_score(member: TeamMember) -> float:
+    """
+    Compute burnout & attrition risk score (0-100) using IBM HR Analytics metrics.
+    Factors: WorkLifeBalance (1-4), JobSatisfaction (1-4), EnvironmentSatisfaction (1-4), JobInvolvement (1-4), OverTime (Yes/No).
+    """
+    wlb = getattr(member, 'work_life_balance', 3)
+    job_sat = getattr(member, 'job_satisfaction', 3)
+    env_sat = getattr(member, 'env_satisfaction', 3)
+    invol = getattr(member, 'job_involvement', 3)
+    overtime_val = getattr(member, 'overtime', 'No')
+
+    wlb_risk = ((5 - wlb) / 4.0) * 35
+    job_sat_risk = ((5 - job_sat) / 4.0) * 25
+    env_sat_risk = ((5 - env_sat) / 4.0) * 20
+    invol_risk = ((5 - invol) / 4.0) * 10
+    ot_risk = 15.0 if overtime_val == 'Yes' else 0.0
+
+    calculated = wlb_risk + job_sat_risk + env_sat_risk + invol_risk + ot_risk
+    # Blend with member's existing burnout score if non-zero
+    base_burnout = member.burnout_score if member.burnout_score > 0 else calculated
+    final_score = round((calculated * 0.6) + (base_burnout * 0.4), 1)
+    return min(100.0, max(0.0, final_score))
+
+
 def compute_wfh_score(member: TeamMember) -> float:
-    """Compute WFH recommendation score (0-100)."""
-    commute_factor = min(100, member.commute_distance * 2)
+    """Compute WFH recommendation score (0-100) using IBM HR commute distance & WLB."""
+    commute = getattr(member, 'commute_distance', 0)
+    wlb = getattr(member, 'work_life_balance', 3)
+    commute_factor = min(100, commute * 2.5)
+    wlb_factor = ((5 - wlb) / 4.0) * 100
+
     score = (
         member.deep_work_req * 0.30
         + (100 - member.collab_req) * 0.20
-        + commute_factor * 0.20
-        + max(0, 100 - member.meeting_load * 10) * 0.15
-        + (100 - member.burnout_score) * 0.15
+        + commute_factor * 0.25
+        + wlb_factor * 0.15
+        + (100 - compute_ibm_burnout_score(member)) * 0.10
     )
     return round(score, 2)
 
@@ -644,18 +669,26 @@ def get_burnout(db: Session = Depends(get_db)):
 
     result = []
     for m in members:
-        risk = get_risk_level(m.burnout_score)
+        ibm_burnout = compute_ibm_burnout_score(m)
+        effective_burnout = round((m.burnout_score * 0.4) + (ibm_burnout * 0.6), 1) if m.burnout_score > 0 else ibm_burnout
+        risk = get_risk_level(effective_burnout)
         cognitive_load = round(
             (m.context_switches * 10 + m.meeting_load * 8 + (100 - m.focus_hours * 12)) / 3, 1
         )
         cognitive_load = max(0, min(100, cognitive_load))
 
         actions: List[str] = []
-        if m.burnout_score >= 70:
+        if getattr(m, 'attrition_label', 'No') == 'Yes':
+            actions.append("⚠️ IBM HR Attrition Marker triggered — High risk of turnover")
+        if getattr(m, 'overtime', 'No') == 'Yes':
+            actions.append("Reduce mandatory overtime to prevent burnout accumulation")
+        if getattr(m, 'work_life_balance', 3) <= 2:
+            actions.append("Low Work-Life Balance score — grant flex-hours or additional WFH days")
+        if effective_burnout >= 70:
             actions.append("Reduce task assignments by 30% immediately")
             actions.append("Block dedicated focus time - no meetings before 11AM")
             actions.append("Schedule 1:1 wellness check-in with manager")
-        elif m.burnout_score >= 40:
+        elif effective_burnout >= 40:
             actions.append("Monitor workload - avoid adding new tasks this week")
             actions.append("Encourage async communication to reduce context switching")
             actions.append("Consider partial WFH to reduce commute stress")
@@ -671,7 +704,7 @@ def get_burnout(db: Session = Depends(get_db)):
         result.append({
             "name": m.name,
             "role": m.role,
-            "burnout_score": m.burnout_score,
+            "burnout_score": effective_burnout,
             "risk_level": risk,
             "stress_score": m.stress_score,
             "focus_hours": m.focus_hours,
@@ -679,9 +712,14 @@ def get_burnout(db: Session = Depends(get_db)):
             "context_switches": m.context_switches,
             "actions": actions,
             "cognitive_load": cognitive_load,
+            "work_life_balance": getattr(m, 'work_life_balance', 3),
+            "job_satisfaction": getattr(m, 'job_satisfaction', 3),
+            "env_satisfaction": getattr(m, 'env_satisfaction', 3),
+            "overtime": getattr(m, 'overtime', 'No'),
+            "attrition_label": getattr(m, 'attrition_label', 'No'),
         })
 
-    avg_burnout = round(sum(m.burnout_score for m in members) / len(members), 1) if members else 0
+    avg_burnout = round(sum(r["burnout_score"] for r in result) / len(result), 1) if result else 0
 
     return {
         "members": result,
@@ -1009,6 +1047,15 @@ def get_team(db: Session = Depends(get_db)):
             "preferred_task_type": m.preferred_task_type,
             "burnout_triggers": parse_json_field(m.burnout_triggers),
             "wfh_productivity": m.wfh_productivity,
+            "work_life_balance": getattr(m, 'work_life_balance', 3),
+            "job_satisfaction": getattr(m, 'job_satisfaction', 3),
+            "env_satisfaction": getattr(m, 'env_satisfaction', 3),
+            "job_involvement": getattr(m, 'job_involvement', 3),
+            "overtime": getattr(m, 'overtime', 'No'),
+            "years_at_company": getattr(m, 'years_at_company', 3),
+            "years_with_manager": getattr(m, 'years_with_manager', 2),
+            "monthly_income": getattr(m, 'monthly_income', 8000.0),
+            "attrition_label": getattr(m, 'attrition_label', 'No'),
         })
 
     avg_workload = round(sum(m.workload for m in members) / len(members), 1) if members else 0
