@@ -40,7 +40,7 @@ function Sidebar() {
                style={{ background: 'linear-gradient(135deg, #f97316 0%, #ea6c0a 100%)', boxShadow: '0 0 16px rgba(249,115,22,0.40)' }}>
             <Zap size={16} color="#fff" strokeWidth={2.5} />
           </div>
-          <span className="logo-text" style={{ color: '#f1f5f9' }}>
+          <span className="logo-text">
             ORK<span className="logo-a">A</span>
           </span>
         </div>
