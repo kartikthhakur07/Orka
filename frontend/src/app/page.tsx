@@ -1,347 +1,383 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
-import { getDashboard } from '@/lib/api'
+import { useState } from 'react'
+import Link from 'next/link'
 import {
-  Users, CalendarDays, Flame, Home,
-  CheckSquare, AlertTriangle, TrendingUp,
-  RefreshCw, Activity, BarChart2
+  Zap, Brain, Flame, Home, Shield, Bot, CalendarDays,
+  Users, CheckCircle2, ArrowRight, Sparkles, TrendingUp,
+  Cpu, Layers, Code2, Lock, Star, ExternalLink, HelpCircle
 } from 'lucide-react'
 
-/* ── helpers ──────────────────────────────────────────────────────────── */
-function useCountUp(target: number, duration = 1200) {
-  const [val, setVal] = useState(0)
-  useEffect(() => {
-    if (!target) return
-    let start: number | null = null
-    const step = (ts: number) => {
-      if (!start) start = ts
-      const p = Math.min((ts - start) / duration, 1)
-      setVal(Math.floor(p * target))
-      if (p < 1) requestAnimationFrame(step)
-    }
-    requestAnimationFrame(step)
-  }, [target, duration])
-  return val
-}
+export default function LandingPage() {
+  /* Interactive Algorithm State */
+  const [skillMatch, setSkillMatch] = useState(90)
+  const [availability, setAvailability] = useState(7.5)
+  const [workload, setWorkload] = useState(35)
+  const [performance, setPerformance] = useState(92)
+  const [urgency, setUrgency] = useState(80)
 
-function getScoreColor(v: number, invertRisk = false): string {
-  if (invertRisk) {
-    if (v > 60) return '#ef4444'
-    if (v > 35) return '#eab308'
-    return '#22c55e'
-  }
-  if (v >= 75) return '#22c55e'
-  if (v >= 45) return '#eab308'
-  return '#ef4444'
-}
-
-/* ── Stat Card ────────────────────────────────────────────────────────── */
-function StatCard({
-  label, value, unit = '%', icon: Icon, color, delay = 0, invertRisk = false
-}: {
-  label: string; value: number; unit?: string; icon: any;
-  color?: string; delay?: number; invertRisk?: boolean
-}) {
-  const displayed = useCountUp(value, 1000)
-  const c = color || getScoreColor(value, invertRisk)
-
-  return (
-    <div
-      className="glass-card p-5 flex flex-col gap-3 animate-fade-in-up"
-      style={{ animationDelay: `${delay}ms`, opacity: 0, animationFillMode: 'forwards' }}
-    >
-      <div className="flex items-center justify-between">
-        <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: 500, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
-          {label}
-        </span>
-        <div style={{
-          width: 34, height: 34, borderRadius: 10,
-          background: `${c}18`,
-          border: `1px solid ${c}30`,
-          display: 'flex', alignItems: 'center', justifyContent: 'center'
-        }}>
-          <Icon size={16} color={c} />
-        </div>
-      </div>
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
-        <span style={{ fontSize: '2.2rem', fontWeight: 800, color: c, lineHeight: 1, letterSpacing: '-0.03em' }}>
-          {displayed}
-        </span>
-        <span style={{ fontSize: '1rem', color: 'var(--text-muted)', fontWeight: 500 }}>{unit}</span>
-      </div>
-      <div className="score-bar">
-        <div
-          className="score-bar-fill"
-          style={{
-            '--target-width': `${Math.min(value, 100)}%`,
-            '--delay': `${delay}ms`,
-            background: `linear-gradient(90deg, ${c}80, ${c})`,
-          } as any}
-        />
-      </div>
-    </div>
+  /* Computed Score Formula */
+  const calculatedScore = Math.round(
+    (skillMatch * 0.35) +
+    ((availability / 8.0) * 100 * 0.25) +
+    ((100 - workload) * 0.20) +
+    (performance * 0.15) +
+    (urgency * 0.05)
   )
-}
-
-/* ── Health Score Circle ──────────────────────────────────────────────── */
-function HealthCircle({ score, name }: { score: number; name: string }) {
-  const r = 28
-  const circ = 2 * Math.PI * r
-  const offset = circ - (score / 100) * circ
-  const color = getScoreColor(score)
 
   return (
-    <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
-      <svg width={72} height={72}>
-        <circle cx={36} cy={36} r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={5} />
-        <circle
-          cx={36} cy={36} r={r} fill="none"
-          stroke={color} strokeWidth={5}
-          strokeLinecap="round"
-          strokeDasharray={circ}
-          strokeDashoffset={offset}
-          transform="rotate(-90 36 36)"
-          style={{ transition: 'stroke-dashoffset 1s cubic-bezier(.4,0,.2,1)', filter: `drop-shadow(0 0 4px ${color}60)` }}
-        />
-      </svg>
-      <span style={{
-        position: 'absolute', fontSize: '0.85rem', fontWeight: 700, color,
+    <div style={{ minHeight: '100vh', background: 'var(--bg-base)', color: 'var(--text-primary)' }}>
+      {/* ── Top Header Navigation ────────────────────────────────────────── */}
+      <header style={{
+        position: 'sticky', top: 0, zIndex: 100,
+        background: 'rgba(255, 255, 255, 0.85)',
+        backdropFilter: 'blur(20px)',
+        borderBottom: '1px solid var(--border-subtle)',
+        padding: '16px 36px',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between'
       }}>
-        {score}
-      </span>
-    </div>
-  )
-}
-
-/* ── Project Health Card ──────────────────────────────────────────────── */
-function ProjectCard({ project }: { project: any }) {
-  const health = project.health_score ?? project.health ?? 0
-  const color = getScoreColor(health)
-
-  return (
-    <div className="glass-card p-4 flex items-center gap-4">
-      <HealthCircle score={health} name={project.name} />
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-          {project.name}
-        </p>
-        <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: 8 }}>
-          {project.status || 'Active'}
-        </p>
-        <div className="score-bar">
-          <div
-            className="score-bar-fill"
-            style={{
-              '--target-width': `${health}%`,
-              background: `linear-gradient(90deg, ${color}70, ${color})`,
-            } as any}
-          />
-        </div>
-      </div>
-      <div style={{
-        fontSize: '0.7rem', fontWeight: 700, padding: '4px 10px',
-        borderRadius: 99, background: `${color}18`, color, border: `1px solid ${color}30`
-      }}>
-        {health >= 75 ? 'Healthy' : health >= 45 ? 'Watch' : 'At Risk'}
-      </div>
-    </div>
-  )
-}
-
-/* ── Assignment Row ───────────────────────────────────────────────────── */
-function AssignmentRow({ a, idx }: { a: any; idx: number }) {
-  const initials = (a.assignee || a.assigned_to || 'UN')
-    .split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0, 2)
-
-  const colors = ['#f97316', '#a855f7', '#14b8a6', '#22c55e', '#eab308', '#ef4444']
-  const bg = colors[idx % colors.length]
-
-  return (
-    <tr>
-      <td>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div className="avatar avatar-sm" style={{ background: `${bg}25`, color: bg }}>
-            {initials}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{
+            width: 36, height: 36, borderRadius: 10,
+            background: 'linear-gradient(135deg, #ea580c 0%, #c2410c 100%)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 4px 14px rgba(234, 88, 12, 0.40)'
+          }}>
+            <Zap size={20} color="#fff" strokeWidth={2.5} />
           </div>
-          <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>
-            {a.assignee || a.assigned_to || '—'}
+          <span style={{ fontSize: '1.4rem', fontWeight: 900, letterSpacing: '-0.02em', color: '#0f172a' }}>
+            ORK<span style={{ color: 'var(--accent-orange)' }}>A</span>
           </span>
+          <span className="badge badge-orange" style={{ marginLeft: 8 }}>v2.0 AI Engine</span>
         </div>
-      </td>
-      <td style={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-        {a.task || a.title || '—'}
-      </td>
-      <td>
-        <span className={`badge badge-${
-          a.priority === 'Critical' ? 'red' :
-          a.priority === 'High' ? 'orange' :
-          a.priority === 'Medium' ? 'yellow' : 'teal'
-        }`}>
-          {a.priority || 'Medium'}
-        </span>
-      </td>
-      <td style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-        {a.confidence ? `${Math.round(a.confidence * 100)}%` : '—'}
-      </td>
-    </tr>
-  )
-}
 
-/* ── Offline Banner ───────────────────────────────────────────────────── */
-function OfflineBanner() {
-  return (
-    <div className="offline-banner flex items-center gap-3">
-      <AlertTriangle size={18} />
-      <div>
-        <p style={{ fontWeight: 600, marginBottom: 2 }}>Backend Offline</p>
-        <p style={{ fontSize: '0.8rem', opacity: 0.8 }}>
-          Start backend with: <code style={{ background: 'rgba(239,68,68,0.15)', padding: '2px 6px', borderRadius: 4, fontFamily: 'monospace' }}>uvicorn main:app --reload</code>
+        <nav style={{ display: 'flex', alignItems: 'center', gap: 28, fontSize: '0.875rem', fontWeight: 500 }}>
+          <a href="#features" style={{ color: 'var(--text-secondary)', textDecoration: 'none', transition: 'color 0.2s' }}>Features</a>
+          <a href="#algorithm" style={{ color: 'var(--text-secondary)', textDecoration: 'none', transition: 'color 0.2s' }}>AI Algorithm</a>
+          <a href="#roi" style={{ color: 'var(--text-secondary)', textDecoration: 'none', transition: 'color 0.2s' }}>ROI Calculator</a>
+          <a href="#pricing" style={{ color: 'var(--text-secondary)', textDecoration: 'none', transition: 'color 0.2s' }}>Pricing</a>
+          <a href="https://orkapi.onrender.com/docs" target="_blank" rel="noreferrer" style={{ color: 'var(--text-secondary)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+            API Docs <ExternalLink size={12} />
+          </a>
+        </nav>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <a href="https://github.com/kartikthhakur07/Orka" target="_blank" rel="noreferrer" className="btn-secondary" style={{ textDecoration: 'none', fontSize: '0.85rem' }}>
+            GitHub Repo
+          </a>
+          <Link href="/dashboard" className="btn-primary" style={{ textDecoration: 'none', fontSize: '0.85rem' }}>
+            Launch App <ArrowRight size={16} />
+          </Link>
+        </div>
+      </header>
+
+      {/* ── Hero Section ─────────────────────────────────────────────────── */}
+      <section style={{ padding: '80px 36px 60px', maxWidth: 1200, margin: '0 auto', textAlign: 'center' }}>
+        <div className="badge badge-orange animate-fade-in-up" style={{ padding: '6px 16px', fontSize: '0.78rem', marginBottom: 20 }}>
+          <Sparkles size={14} style={{ marginRight: 6 }} /> Powered by 5-Factor Predictive Machine Intelligence
+        </div>
+
+        <h1 style={{
+          fontSize: '3.5rem', fontWeight: 900, lineHeight: 1.15,
+          letterSpacing: '-0.03em', color: 'var(--text-primary)',
+          maxWidth: 900, margin: '0 auto 20px'
+        }}>
+          AI Decision Engine for <br />
+          <span className="text-gradient-orange">Modern Engineering Teams</span>
+        </h1>
+
+        <p style={{
+          fontSize: '1.2rem', color: 'var(--text-secondary)',
+          maxWidth: 720, margin: '0 auto 36px', lineHeight: 1.6
+        }}>
+          Stop guessing task assignments. ORKA uses 5-factor AI modeling to assign work, prevent burnout 2 weeks early, enforce WFH policies, and shield your team from deadline risks.
         </p>
-      </div>
-    </div>
-  )
-}
 
-/* ── Skeleton ─────────────────────────────────────────────────────────── */
-function SkeletonCards() {
-  return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
-      {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className="glass-card p-5" style={{ height: 120 }}>
-          <div className="skeleton" style={{ height: 12, width: '60%', marginBottom: 16 }} />
-          <div className="skeleton" style={{ height: 36, width: '40%', marginBottom: 16 }} />
-          <div className="skeleton" style={{ height: 6, width: '100%' }} />
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, marginBottom: 60 }}>
+          <Link href="/dashboard" className="btn-primary" style={{ padding: '14px 32px', fontSize: '1rem', textDecoration: 'none' }}>
+            Launch Executive Dashboard <ArrowRight size={18} />
+          </Link>
+          <Link href="/delegator" className="btn-secondary" style={{ padding: '14px 28px', fontSize: '1rem', textDecoration: 'none' }}>
+            Try Task Delegator
+          </Link>
         </div>
-      ))}
-    </div>
-  )
-}
 
-/* ── Main Page ────────────────────────────────────────────────────────── */
-export default function DashboardPage() {
-  const [data, setData] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(false)
-  const [refreshing, setRefreshing] = useState(false)
+        {/* Live Hero Preview Cards */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20, textAlign: 'left' }}>
+          <div className="glass-card p-6 flex items-center gap-4">
+            <div style={{ width: 48, height: 48, borderRadius: 14, background: 'rgba(234, 88, 12, 0.12)', color: 'var(--accent-orange)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Brain size={24} />
+            </div>
+            <div>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Smart Match</p>
+              <p style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)' }}>94.5% Confidence</p>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Auto-assigned by 5-factor fit</p>
+            </div>
+          </div>
 
-  const load = async () => {
-    try {
-      setError(false)
-      const res = await getDashboard()
-      setData(res)
-    } catch {
-      setError(true)
-    } finally {
-      setLoading(false)
-      setRefreshing(false)
-    }
-  }
+          <div className="glass-card p-6 flex items-center gap-4">
+            <div style={{ width: 48, height: 48, borderRadius: 14, background: 'rgba(124, 58, 237, 0.12)', color: 'var(--accent-purple)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Flame size={24} />
+            </div>
+            <div>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Burnout Early Warning</p>
+              <p style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)' }}>14 Days Advance</p>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Cognitive load & stress alert</p>
+            </div>
+          </div>
 
-  useEffect(() => { load() }, [])
+          <div className="glass-card p-6 flex items-center gap-4">
+            <div style={{ width: 48, height: 48, borderRadius: 14, background: 'rgba(13, 148, 136, 0.12)', color: 'var(--accent-teal)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <CalendarDays size={24} />
+            </div>
+            <div>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Sprint Generation</p>
+              <p style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)' }}>30 Seconds</p>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>2-week balanced distribution</p>
+            </div>
+          </div>
+        </div>
+      </section>
 
-  const refresh = () => { setRefreshing(true); load() }
-
-  const stats = data ? [
-    { label: 'Team Health',    value: data.team_health    ?? data.teamHealth    ?? 0, icon: Users,         delay: 0   },
-    { label: 'Sprint Progress',value: data.sprint_progress ?? data.sprintProgress ?? 0, icon: CalendarDays, delay: 80  },
-    { label: 'Burnout Index',  value: data.burnout_index  ?? data.burnoutIndex  ?? 0, icon: Flame,         delay: 160, invertRisk: true },
-    { label: 'WFH Rate',       value: data.wfh_rate       ?? data.wfhRate       ?? 0, icon: Home,          delay: 240, color: '#a855f7' },
-    { label: 'Active Tasks',   value: data.active_tasks   ?? data.activeTasks   ?? 0, icon: CheckSquare,   delay: 320, unit: '', color: '#14b8a6' },
-    { label: 'Risk Score',     value: data.risk_score     ?? data.riskScore     ?? 0, icon: AlertTriangle, delay: 400, invertRisk: true },
-  ] : []
-
-  const projects  = data?.projects  || data?.project_health || []
-  const assignments = data?.recent_assignments || data?.assignments || []
-
-  return (
-    <div>
-      {/* ── Header ── */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 28 }}>
-        <div>
-          <h1 className="section-title" style={{ fontSize: '1.75rem' }}>
-            🎯 Executive Dashboard
-          </h1>
-          <p className="section-subtitle" style={{ marginTop: 6 }}>
-            Real-time intelligence across your entire organization
+      {/* ── 6 Core Features Grid ─────────────────────────────────────────── */}
+      <section id="features" style={{ padding: '80px 36px', maxWidth: 1200, margin: '0 auto' }}>
+        <div style={{ textAlign: 'center', marginBottom: 50 }}>
+          <h2 style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+            6 Core Intelligent Modules
+          </h2>
+          <p style={{ color: 'var(--text-muted)', marginTop: 8 }}>
+            Engineered to automate project management overhead and protect engineering focus.
           </p>
         </div>
-        <button className="btn-secondary" onClick={refresh} disabled={refreshing} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <RefreshCw size={14} style={{ animation: refreshing ? 'spin 1s linear infinite' : 'none' }} />
-          {refreshing ? 'Refreshing…' : 'Refresh'}
-        </button>
-      </div>
 
-      {/* ── Error ── */}
-      {error && <div style={{ marginBottom: 20 }}><OfflineBanner /></div>}
-
-      {/* ── Stat Cards ── */}
-      {loading ? <SkeletonCards /> : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 28 }}>
-          {stats.map((s, i) => (
-            <StatCard key={s.label} {...s} />
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}>
+          {[
+            {
+              icon: Brain, color: '#ea580c', title: '1. Smart Task Delegator',
+              desc: 'Matches incoming tasks with team members using a 5-factor weighted algorithm considering skill match, capacity, and stress.'
+            },
+            {
+              icon: Flame, color: '#dc2626', title: '2. Burnout Radar',
+              desc: 'Tracks cognitive load, meeting density, and context switching to predict burnout risk 2 weeks before performance drops.'
+            },
+            {
+              icon: Home, color: '#16a34a', title: '3. WFH Decider',
+              desc: 'Calculates WFH eligibility based on commute distance, deep work requirements, and meeting schedules for maximum productivity.'
+            },
+            {
+              icon: Shield, color: '#7c3aed', title: '4. Deadline Shield',
+              desc: 'Monitors sprint velocity and remaining task complexity to predict deadline delays before they impact delivery.'
+            },
+            {
+              icon: Cpu, color: '#0d9488', title: '5. NLP Task Parser',
+              desc: 'Extracts skills, estimated hours, and complexity from single-sentence task descriptions using natural language intelligence.'
+            },
+            {
+              icon: CalendarDays, color: '#d97706', title: '6. Auto Sprint Planner',
+              desc: 'Generates balanced 2-week sprint schedules in 30 seconds respecting daily capacity limits and skill specialization.'
+            },
+          ].map((f, i) => (
+            <div key={i} className="glass-card p-6 flex flex-col gap-3">
+              <div style={{ width: 42, height: 42, borderRadius: 12, background: `${f.color}15`, color: f.color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <f.icon size={22} />
+              </div>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-primary)' }}>{f.title}</h3>
+              <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>{f.desc}</p>
+            </div>
           ))}
         </div>
-      )}
+      </section>
 
-      {/* ── Project Health ── */}
-      {!loading && projects.length > 0 && (
-        <div style={{ marginBottom: 28 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-            <Activity size={18} color="var(--accent-orange)" />
-            <h2 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-              Project Health
+      {/* ── Interactive 5-Factor Score Visualizer ────────────────────────── */}
+      <section id="algorithm" style={{ padding: '80px 36px', background: 'rgba(241, 245, 249, 0.6)', borderTop: '1px solid var(--border-subtle)', borderBottom: '1px solid var(--border-subtle)' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: 40 }}>
+            <span className="badge badge-purple" style={{ marginBottom: 10 }}>Algorithmic Precision</span>
+            <h2 style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+              How the 5-Factor Scoring Formula Works
             </h2>
-            <span className="badge badge-orange">{projects.length} active</span>
+            <p style={{ color: 'var(--text-muted)', marginTop: 8 }}>
+              Try adjusting the sliders below to see how ORKA calculates the optimal assignment score in real time.
+            </p>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 12 }}>
-            {projects.map((p: any, i: number) => (
-              <div key={i} className="animate-fade-in-up" style={{ animationDelay: `${i * 60}ms`, opacity: 0, animationFillMode: 'forwards' }}>
-                <ProjectCard project={p} />
+
+          <div className="glass-card p-8" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 40, alignItems: 'center' }}>
+            {/* Sliders */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', fontWeight: 600, marginBottom: 6 }}>
+                  <span>1. Skill Match (35%)</span>
+                  <span style={{ color: 'var(--accent-orange)' }}>{skillMatch}%</span>
+                </div>
+                <input type="range" min="0" max="100" value={skillMatch} onChange={e => setSkillMatch(Number(e.target.value))} />
               </div>
-            ))}
+
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', fontWeight: 600, marginBottom: 6 }}>
+                  <span>2. Availability (25%)</span>
+                  <span style={{ color: 'var(--accent-purple)' }}>{availability}h / 8h</span>
+                </div>
+                <input type="range" min="0" max="8" step="0.5" value={availability} onChange={e => setAvailability(Number(e.target.value))} />
+              </div>
+
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', fontWeight: 600, marginBottom: 6 }}>
+                  <span>3. Workload Inverse (20%)</span>
+                  <span style={{ color: 'var(--accent-teal)' }}>{workload}% load ({100 - workload}% free)</span>
+                </div>
+                <input type="range" min="0" max="100" value={workload} onChange={e => setWorkload(Number(e.target.value))} />
+              </div>
+
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', fontWeight: 600, marginBottom: 6 }}>
+                  <span>4. Performance Rating (15%)</span>
+                  <span style={{ color: 'var(--accent-green)' }}>{performance} / 100</span>
+                </div>
+                <input type="range" min="0" max="100" value={performance} onChange={e => setPerformance(Number(e.target.value))} />
+              </div>
+
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', fontWeight: 600, marginBottom: 6 }}>
+                  <span>5. Deadline Urgency (5%)</span>
+                  <span style={{ color: 'var(--accent-yellow)' }}>{urgency}%</span>
+                </div>
+                <input type="range" min="0" max="100" value={urgency} onChange={e => setUrgency(Number(e.target.value))} />
+              </div>
+            </div>
+
+            {/* Calculated Output Card */}
+            <div style={{ textAlign: 'center', background: 'rgba(255, 255, 255, 0.9)', padding: 36, borderRadius: 20, border: '1px solid var(--border-card)' }}>
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Calculated Assignment Score
+              </p>
+              <div style={{ fontSize: '4.5rem', fontWeight: 900, color: calculatedScore >= 75 ? '#16a34a' : calculatedScore >= 50 ? '#d97706' : '#dc2626', margin: '10px 0' }}>
+                {calculatedScore}
+              </div>
+              <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: 20 }}>
+                {calculatedScore >= 75 ? '⚡ Ideal Match — Auto-assign recommended' : calculatedScore >= 50 ? '⚠️ Moderate Match — Assign with caution' : '🛑 Poor Match — High burnout risk'}
+              </p>
+              <Link href="/delegator" className="btn-primary" style={{ textDecoration: 'none', display: 'inline-flex' }}>
+                Test Live Delegator Engine
+              </Link>
+            </div>
           </div>
         </div>
-      )}
+      </section>
 
-      {/* ── Recent Assignments ── */}
-      {!loading && assignments.length > 0 && (
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-            <BarChart2 size={18} color="var(--accent-purple)" />
-            <h2 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-              Recent Task Assignments
-            </h2>
-          </div>
-          <div className="glass-card" style={{ overflow: 'hidden' }}>
-            <table className="orka-table">
-              <thead>
-                <tr>
-                  <th>Assignee</th>
-                  <th>Task</th>
-                  <th>Priority</th>
-                  <th>Confidence</th>
-                </tr>
-              </thead>
-              <tbody>
-                {assignments.slice(0, 8).map((a: any, i: number) => (
-                  <AssignmentRow key={i} a={a} idx={i} />
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* ── Empty state ── */}
-      {!loading && !error && projects.length === 0 && assignments.length === 0 && (
-        <div className="glass-card p-10 text-center">
-          <div style={{ fontSize: '3rem', marginBottom: 12 }}>🚀</div>
-          <p style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>
-            Dashboard loaded — start your backend and add some data!
+      {/* ── Business ROI Calculator ──────────────────────────────────────── */}
+      <section id="roi" style={{ padding: '80px 36px', maxWidth: 1100, margin: '0 auto' }}>
+        <div style={{ textAlign: 'center', marginBottom: 40 }}>
+          <h2 style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+            High Business Impact & ROI
+          </h2>
+          <p style={{ color: 'var(--text-muted)', marginTop: 8 }}>
+            Preventing developer attrition saves millions in replacement and onboarding costs.
           </p>
         </div>
-      )}
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24, textAlign: 'center' }}>
+          <div className="glass-card p-6">
+            <p style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--accent-orange)' }}>₹7–10 Lakhs</p>
+            <p style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-primary)', margin: '8px 0 4px' }}>Developer Retention Savings</p>
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Average cost saved per engineer retained by avoiding burnout turnover.</p>
+          </div>
+
+          <div className="glass-card p-6">
+            <p style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--accent-purple)' }}>300x ROI</p>
+            <p style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-primary)', margin: '8px 0 4px' }}>Return on Investment</p>
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Calculated against standard ORKA annual subscription costs.</p>
+          </div>
+
+          <div className="glass-card p-6">
+            <p style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--accent-teal)' }}>24+ Hours</p>
+            <p style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-primary)', margin: '8px 0 4px' }}>Focus Time Reclaimed</p>
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Saved per week by converting unnecessary meetings into async workflows.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Pricing Tiers ───────────────────────────────────────────────── */}
+      <section id="pricing" style={{ padding: '80px 36px', background: 'rgba(241, 245, 249, 0.6)', borderTop: '1px solid var(--border-subtle)' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: 50 }}>
+            <h2 style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+              Transparent Pricing Plans
+            </h2>
+            <p style={{ color: 'var(--text-muted)', marginTop: 8 }}>
+              Scale your team intelligence seamlessly as your engineering organization grows.
+            </p>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}>
+            {/* Free */}
+            <div className="glass-card p-6 flex flex-col justify-between">
+              <div>
+                <p style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>Free Starter</p>
+                <p style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--text-primary)', margin: '12px 0' }}>₹0 <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 500 }}>/ month</span></p>
+                <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 10, fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                  <li style={{ display: 'flex', alignItems: 'center', gap: 8 }}><CheckCircle2 size={16} color="#16a34a" /> Up to 3 team members</li>
+                  <li style={{ display: 'flex', alignItems: 'center', gap: 8 }}><CheckCircle2 size={16} color="#16a34a" /> Basic Task Delegator</li>
+                  <li style={{ display: 'flex', alignItems: 'center', gap: 8 }}><CheckCircle2 size={16} color="#16a34a" /> WFH Decider</li>
+                </ul>
+              </div>
+              <Link href="/dashboard" className="btn-secondary" style={{ textDecoration: 'none', marginTop: 24, textTransform: 'center' }}>
+                Get Started
+              </Link>
+            </div>
+
+            {/* Pro */}
+            <div className="glass-card p-6 flex flex-col justify-between" style={{ borderColor: 'rgba(234, 88, 12, 0.4)', boxShadow: '0 12px 32px rgba(234, 88, 12, 0.15)' }}>
+              <div>
+                <div className="badge badge-orange" style={{ marginBottom: 8 }}>Most Popular</div>
+                <p style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>Pro Team</p>
+                <p style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--accent-orange)', margin: '12px 0' }}>₹1,999 <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 500 }}>/ month</span></p>
+                <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 10, fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                  <li style={{ display: 'flex', alignItems: 'center', gap: 8 }}><CheckCircle2 size={16} color="#ea580c" /> Up to 20 team members</li>
+                  <li style={{ display: 'flex', alignItems: 'center', gap: 8 }}><CheckCircle2 size={16} color="#ea580c" /> Burnout Radar (14-day early warning)</li>
+                  <li style={{ display: 'flex', alignItems: 'center', gap: 8 }}><CheckCircle2 size={16} color="#ea580c" /> Auto Sprint Planner (30-sec sprint)</li>
+                  <li style={{ display: 'flex', alignItems: 'center', gap: 8 }}><CheckCircle2 size={16} color="#ea580c" /> Deadline Shield analytics</li>
+                </ul>
+              </div>
+              <Link href="/dashboard" className="btn-primary" style={{ textDecoration: 'none', marginTop: 24, textAlign: 'center' }}>
+                Start Pro Trial <ArrowRight size={16} />
+              </Link>
+            </div>
+
+            {/* Enterprise */}
+            <div className="glass-card p-6 flex flex-col justify-between">
+              <div>
+                <p style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>Enterprise</p>
+                <p style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--text-primary)', margin: '12px 0' }}>Custom</p>
+                <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 10, fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                  <li style={{ display: 'flex', alignItems: 'center', gap: 8 }}><CheckCircle2 size={16} color="#16a34a" /> Unlimited team members</li>
+                  <li style={{ display: 'flex', alignItems: 'center', gap: 8 }}><CheckCircle2 size={16} color="#16a34a" /> Dedicated GPT-4o fine-tuning</li>
+                  <li style={{ display: 'flex', alignItems: 'center', gap: 8 }}><CheckCircle2 size={16} color="#16a34a" /> Slack & GitHub Integrations</li>
+                </ul>
+              </div>
+              <a href="https://github.com/kartikthhakur07/Orka" target="_blank" rel="noreferrer" className="btn-secondary" style={{ textDecoration: 'none', marginTop: 24, textAlign: 'center' }}>
+                Contact Sales
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Footer ───────────────────────────────────────────────────────── */}
+      <footer style={{ padding: '40px 36px', borderTop: '1px solid var(--border-subtle)', background: '#ffffff' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <Zap size={16} color="var(--accent-orange)" />
+            <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>ORKA AI Engine v2.0</span>
+            <span>· Built for Supernova Hacks</span>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+            <a href="https://orka-ten.vercel.app" target="_blank" rel="noreferrer" style={{ color: 'var(--text-muted)', textDecoration: 'none' }}>Live Frontend</a>
+            <a href="https://orkapi.onrender.com" target="_blank" rel="noreferrer" style={{ color: 'var(--text-muted)', textDecoration: 'none' }}>Live API</a>
+            <a href="https://github.com/kartikthhakur07/Orka" target="_blank" rel="noreferrer" style={{ color: 'var(--text-muted)', textDecoration: 'none' }}>GitHub</a>
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }

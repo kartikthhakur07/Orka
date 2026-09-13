@@ -13,11 +13,13 @@ import {
   Bot,
   Users,
   TrendingUp,
+  Sparkles,
   Zap
 } from 'lucide-react'
 
 const navLinks = [
-  { href: '/',            icon: LayoutDashboard, label: 'Executive Dashboard' },
+  { href: '/',            icon: Sparkles,         label: 'Landing Page'        },
+  { href: '/dashboard',   icon: LayoutDashboard, label: 'Executive Dashboard' },
   { href: '/delegator',   icon: Brain,            label: 'Task Delegator'      },
   { href: '/sprint',      icon: CalendarDays,     label: 'Sprint Planner'      },
   { href: '/burnout',     icon: Flame,            label: 'Burnout Radar'       },
@@ -37,7 +39,7 @@ function Sidebar() {
       <div className="sidebar-logo">
         <div className="flex items-center gap-2 mb-1">
           <div className="w-8 h-8 rounded-lg flex items-center justify-center"
-               style={{ background: 'linear-gradient(135deg, #f97316 0%, #ea6c0a 100%)', boxShadow: '0 0 16px rgba(249,115,22,0.40)' }}>
+               style={{ background: 'linear-gradient(135deg, #ea580c 0%, #c2410c 100%)', boxShadow: '0 0 16px rgba(234,88,12,0.30)' }}>
             <Zap size={16} color="#fff" strokeWidth={2.5} />
           </div>
           <span className="logo-text">
@@ -71,7 +73,7 @@ function Sidebar() {
                   height: 6,
                   borderRadius: '50%',
                   background: 'var(--accent-orange)',
-                  boxShadow: '0 0 6px rgba(249,115,22,0.6)',
+                  boxShadow: '0 0 6px rgba(234,88,12,0.6)',
                   flexShrink: 0
                 }} />
               )}
@@ -87,8 +89,8 @@ function Sidebar() {
           alignItems: 'center',
           gap: 8,
           padding: '8px 10px',
-          background: 'rgba(249,115,22,0.06)',
-          border: '1px solid rgba(249,115,22,0.12)',
+          background: 'rgba(234,88,12,0.06)',
+          border: '1px solid rgba(234,88,12,0.12)',
           borderRadius: 8,
         }}>
           <div className="glow-dot" style={{ width: 6, height: 6 }} />
@@ -101,6 +103,26 @@ function Sidebar() {
   )
 }
 
+function MainLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname()
+  const isLandingPage = pathname === '/'
+
+  if (isLandingPage) {
+    return <div style={{ minHeight: '100vh', background: 'var(--bg-base)' }}>{children}</div>
+  }
+
+  return (
+    <>
+      <Sidebar />
+      <main className="main-content">
+        <div className="page-container">
+          {children}
+        </div>
+      </main>
+    </>
+  )
+}
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
@@ -108,18 +130,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>ORKA — AI Decision Engine</title>
-        <meta name="description" content="ORKA v2 — Premium AI Project Management Platform" />
+        <meta name="description" content="ORKA v2 — Premium AI Project Management & Team Intelligence Platform" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
       </head>
       <body>
-        <Sidebar />
-        <main className="main-content">
-          <div className="page-container">
-            {children}
-          </div>
-        </main>
+        <MainLayout>{children}</MainLayout>
       </body>
     </html>
   )
