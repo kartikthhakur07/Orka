@@ -246,7 +246,7 @@ export default function CopilotPage() {
             padding: '16px 21px',
             borderTop: '1px solid var(--border-subtle)',
             display: 'flex', gap: 12, alignItems: 'center',
-            background: 'rgba(9, 9, 11, 0.5)'
+            background: '#ffffff'
           }}>
             <div style={{ flex: 1, position: 'relative' }}>
               <input

@@ -45,9 +45,16 @@
   /* Text Roles (87% ink opacity to match warm canvas) */
   --text-black: rgba(0, 0, 0, 0.87);
   --text-black-soft: rgba(0, 0, 0, 0.58);
+  --text-primary: rgba(0, 0, 0, 0.87);
+  --text-secondary: rgba(0, 0, 0, 0.58);
   --text-white: #ffffff;
   --text-white-soft: rgba(255, 255, 255, 0.70);
   --text-muted: #64748b;
+
+  /* Accent Aliases */
+  --accent-primary: #00754A;
+  --accent-indigo: #1E3932;
+  --accent-indigo-dim: rgba(30, 57, 50, 0.1);
 
   /* Borders & Radius */
   --border-subtle: #e2e8f0;
@@ -474,6 +481,24 @@ body {
 .frap-btn:active {
   transform: scale(0.95);
   box-shadow: 0 0 6px rgba(0, 0, 0, 0.24);
+}
+
+/* ─── Chat Bubbles (AI Copilot) ─────────────────────────────────────────── */
+.chat-bubble-user {
+  background: var(--green-accent);
+  color: #ffffff;
+  padding: 12px 16px;
+  border-radius: 18px 18px 4px 18px;
+  box-shadow: 0 2px 8px rgba(0, 117, 74, 0.2);
+}
+
+.chat-bubble-ai {
+  background: #ffffff;
+  color: var(--text-black);
+  padding: 12px 16px;
+  border-radius: 18px 18px 18px 4px;
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-card);
 }
 
 /* ─── Inputs ────────────────────────────────────────────────────────────── */
