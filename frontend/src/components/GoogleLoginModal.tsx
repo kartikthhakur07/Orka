@@ -21,6 +21,7 @@ export function GoogleLoginModal({ isOpen, onClose, onLoginSuccess }: GoogleLogi
 
   const handleGoogleSignIn = (userEmail?: string) => {
     setLoading(true)
+    const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '661063757512-bvquhmfclmifmhp2ujuasf242fkg365k.apps.googleusercontent.com'
     const targetEmail = userEmail || email.trim() || 'priya.sharma@gmail.com'
     const nameFromEmail = targetEmail.split('@')[0].replace('.', ' ').replace(/\b\w/g, c => c.toUpperCase())
 
@@ -32,7 +33,8 @@ export function GoogleLoginModal({ isOpen, onClose, onLoginSuccess }: GoogleLogi
       const userObj = {
         email: targetEmail,
         name: nameFromEmail,
-        avatar: nameFromEmail.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
+        avatar: nameFromEmail.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2),
+        clientId: googleClientId
       }
 
       if (typeof window !== 'undefined') {
