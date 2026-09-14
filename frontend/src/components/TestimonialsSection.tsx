@@ -28,26 +28,26 @@ export function TestimonialsSection() {
   ]
 
   return (
-    <section style={{ padding: 'clamp(48px, 7vw, 96px) 0', background: 'var(--bg-canvas)' }}>
-      <div className="container">
-        <div className="section-header" style={{ marginBottom: 44 }}>
+    <section style={{ padding: 'clamp(56px, 8vw, 110px) 0', background: 'var(--bg-canvas)' }}>
+      <div className="container" style={{ maxWidth: 1140 }}>
+        <div className="section-header" style={{ marginBottom: 48 }}>
           <Badge variant="indigo" style={{ marginBottom: 12 }}>Testimonials</Badge>
-          <h2 style={{ fontSize: 'clamp(24px, 3.5vw, 36px)', fontWeight: 800, color: '#0f172a' }}>
+          <h2 style={{ fontSize: 'clamp(26px, 4vw, 42px)', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.01em' }}>
             Loved by Engineering Leaders Worldwide
           </h2>
-          <p style={{ color: '#64748b', marginTop: 8, fontSize: 'var(--font-base)', maxWidth: 600, margin: '8px auto 0' }}>
+          <p style={{ color: '#64748b', marginTop: 10, fontSize: 'var(--font-base)', maxWidth: 580, margin: '10px auto 0' }}>
             See how top technology companies scale velocity and prevent burnout with ORKA v2.
           </p>
         </div>
 
-        <div className="testimonials-grid">
+        <div className="testimonials-grid" style={{ gap: 24 }}>
           {testimonials.map((t, idx) => (
             <div
               key={idx}
               className="glass-card testimonial-card p-6 flex flex-col justify-between"
-              style={{ borderRadius: 20, border: '1px solid #e2e8f0' }}
+              style={{ borderRadius: 16, border: '1px solid #e2e8f0', padding: '24px', minHeight: 220 }}
             >
-              <p style={{ fontSize: 'var(--font-xs)', color: '#334155', lineHeight: 1.6, fontStyle: 'italic', marginBottom: 24 }}>
+              <p style={{ fontSize: 'var(--font-xs)', color: '#334155', lineHeight: 1.65, fontStyle: 'italic', marginBottom: 20 }}>
                 {t.quote}
               </p>
 
@@ -57,7 +57,7 @@ export function TestimonialsSection() {
                   background: `${t.color}15`, color: t.color,
                   fontWeight: 800, fontSize: 'var(--font-xs)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  border: `1px solid ${t.color}30`
+                  border: `1px solid ${t.color}30`, flexShrink: 0
                 }}>
                   {t.initials}
                 </div>

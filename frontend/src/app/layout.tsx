@@ -9,7 +9,7 @@ function MainLayout({ children }: { children: React.ReactNode }) {
   const isLandingPage = pathname === '/'
 
   if (isLandingPage) {
-    return <div style={{ minHeight: '100vh', background: 'var(--bg-base)' }}>{children}</div>
+    return <div style={{ minHeight: '100vh', background: 'var(--bg-canvas)', overflowX: 'hidden' }}>{children}</div>
   }
 
   return (

@@ -216,7 +216,7 @@ body {
 
 .container,
 .page-container {
-  width: min(100% - 32px, 1400px);
+  width: min(100% - 32px, 1200px);
   margin-inline: auto;
   box-sizing: border-box;
 }
