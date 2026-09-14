@@ -586,7 +586,7 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* 3 Pricing Tier Cards (Figma Make Layout) */}
+              {/* 3 Pricing Tier Cards (Figma Make Layout) */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24, alignItems: 'stretch' }}>
             {/* Starter Tier */}
             <div className="glass-card p-8 flex flex-col justify-between" style={{ borderRadius: 24, border: '1px solid var(--border-subtle)' }}>
@@ -596,7 +596,7 @@ export default function LandingPage() {
                   <Badge variant="gray">Free Tier</Badge>
                 </div>
                 <p style={{ fontSize: 'var(--font-xs)', color: 'var(--text-muted)', marginBottom: 24, minHeight: 36 }}>
-                  Essential task delegation & sprint scheduling for small teams & projects.
+                  Perfect for small teams & side projects looking for smart delegation.
                 </p>
                 <div style={{ marginBottom: 28 }}>
                   <span style={{ fontSize: 'var(--font-2xl)', fontWeight: 900, color: 'var(--text-primary)' }}>$0</span>
@@ -606,9 +606,9 @@ export default function LandingPage() {
                 <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
                   {[
                     'Up to 5 Team Members',
-                    '5-Factor Task Delegator (Basic)',
+                    'Basic Task Delegation',
+                    'Standard Analytics & Metrics',
                     'Auto Sprint Schedule Generator',
-                    'Standard Executive Dashboard',
                     'IBM HR Dataset Integration',
                     'Community Discord Support'
                   ].map((feat, i) => (
@@ -625,60 +625,59 @@ export default function LandingPage() {
               </Link>
             </div>
 
-            {/* Pro Scale Tier (POPULAR / HIGHLIGHTED CARD) */}
+            {/* Pro Scale Tier (HIGHEST MATCH FIGMA MAKE CARD) */}
             <div className="glass-card p-8 flex flex-col justify-between" style={{
               borderRadius: 24,
-              border: '2px solid var(--accent-indigo)',
-              boxShadow: '0 0 34px rgba(99,102,241,0.25)',
+              border: '2px solid #16a34a',
+              boxShadow: '0 0 34px rgba(22, 163, 74, 0.25)',
               position: 'relative',
-              background: 'linear-gradient(180deg, rgba(99,102,241,0.08) 0%, rgba(12,12,16,0.95) 100%)'
+              background: 'linear-gradient(180deg, rgba(22, 163, 74, 0.08) 0%, rgba(12, 12, 16, 0.95) 100%)'
             }}>
               {/* Floating Most Popular Badge */}
               <div style={{
                 position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)',
-                background: 'linear-gradient(135deg, #6366f1 0%, #3b82f6 100%)',
+                background: 'linear-gradient(135deg, #16a34a 0%, #22c55e 100%)',
                 color: '#fff', fontSize: 'var(--font-xs)', fontWeight: 800, padding: '4px 16px', borderRadius: 99,
-                letterSpacing: '0.06em', boxShadow: '0 4px 14px rgba(99,102,241,0.5)'
+                letterSpacing: '0.06em', boxShadow: '0 4px 14px rgba(22,163,74,0.5)'
               }}>
                 MOST POPULAR
               </div>
 
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, marginTop: 4 }}>
-                  <h3 style={{ fontSize: 'var(--font-md)', fontWeight: 800, color: 'var(--text-primary)' }}>Pro Scale</h3>
-                  <Badge variant="indigo">Growth</Badge>
+                  <h3 style={{ fontSize: 'var(--font-md)', fontWeight: 800, color: 'var(--text-primary)' }}>Pro</h3>
+                  <Badge variant="green">Growth</Badge>
                 </div>
                 <p style={{ fontSize: 'var(--font-xs)', color: 'var(--text-muted)', marginBottom: 24, minHeight: 36 }}>
-                  Full autonomous AI decision engine with early burnout detection & WFH automation.
+                  For growing engineering teams that need workload automation & early burnout signals.
                 </p>
                 <div style={{ marginBottom: 28 }}>
                   <span style={{ fontSize: 'var(--font-2xl)', fontWeight: 900, color: 'var(--text-primary)' }}>
-                    {isAnnual ? '$39' : '$49'}
+                    {isAnnual ? '$24' : '$29'}
                   </span>
-                  <span style={{ fontSize: 'var(--font-xs)', color: 'var(--text-muted)' }}> / seat / month</span>
-                  {isAnnual && <p style={{ fontSize: '11px', color: '#10b981', marginTop: 4, fontWeight: 600 }}>Billed annually ($468/yr)</p>}
+                  <span style={{ fontSize: 'var(--font-xs)', color: 'var(--text-muted)' }}> / month</span>
+                  {isAnnual && <p style={{ fontSize: '11px', color: '#10b981', marginTop: 4, fontWeight: 600 }}>Billed annually ($288/yr)</p>}
                 </div>
 
                 <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
                   {[
-                    'Unlimited Team Members',
-                    'Advanced 5-Factor Task Delegator with Live Weights',
-                    'Proactive Burnout Radar (14-Day Warning)',
+                    'Up to 25 Team Members',
+                    'AI Workload & Burnout Radar (14-Day Warning)',
+                    'Advanced 5-Factor Delegator with Live Weights',
                     'Automated WFH Policy Decider',
-                    'Deadline Shield & Slippage Forecast',
-                    'Unlimited AI Copilot Chat Queries',
-                    'IBM HR Dataset ML Fine-tuning',
-                    '24/7 Priority Support & Slack Webhooks'
+                    'Deadline Shield & Velocity Forecast',
+                    'Unlimited Integrations & Webhooks',
+                    'Priority Email & Slack Support'
                   ].map((feat, i) => (
                     <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 'var(--font-xs)', color: 'var(--text-primary)', fontWeight: 500 }}>
-                      <CheckCircle2 size={16} color="var(--accent-indigo)" />
+                      <CheckCircle2 size={16} color="#16a34a" />
                       <span>{feat}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
-              <Link href="/dashboard" className="btn-primary" style={{ width: '100%', marginTop: 32, textDecoration: 'none', padding: '14px', fontSize: 'var(--font-xs)' }}>
+              <Link href="/dashboard" className="btn-primary" style={{ width: '100%', marginTop: 32, textDecoration: 'none', padding: '14px', fontSize: 'var(--font-xs)', background: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)', boxShadow: '0 4px 14px rgba(22, 163, 74, 0.4)' }}>
                 Start 14-Day Free Trial <ArrowRight size={16} />
               </Link>
             </div>
@@ -691,25 +690,22 @@ export default function LandingPage() {
                   <Badge variant="purple">Custom AI</Badge>
                 </div>
                 <p style={{ fontSize: 'var(--font-xs)', color: 'var(--text-muted)', marginBottom: 24, minHeight: 36 }}>
-                  Custom ML models fine-tuned on company Git history, SOC2 compliance & custom SLA.
+                  For large orgs needing compliance, SSO, SAML 2.0, audit logs, and dedicated SLAs.
                 </p>
                 <div style={{ marginBottom: 28 }}>
-                  <span style={{ fontSize: 'var(--font-2xl)', fontWeight: 900, color: 'var(--text-primary)' }}>
-                    {isAnnual ? '$159' : '$199'}
-                  </span>
-                  <span style={{ fontSize: 'var(--font-xs)', color: 'var(--text-muted)' }}> / seat / month</span>
-                  <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: 4 }}>Custom volume discounts available</p>
+                  <span style={{ fontSize: 'var(--font-2xl)', fontWeight: 900, color: 'var(--text-primary)' }}>Custom</span>
+                  <span style={{ fontSize: 'var(--font-xs)', color: 'var(--text-muted)' }}> / contact sales</span>
+                  <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: 4 }}>Custom volume licensing available</p>
                 </div>
 
                 <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
                   {[
-                    'Everything in Pro Scale',
-                    'Custom Fine-Tuned AI Models on Git History',
-                    'Dedicated Customer Success Engineer',
-                    'SSO / SAML 2.0 & Custom RBAC Roles',
-                    'Custom WFH & Compliance Policy Rules',
-                    '99.99% Guaranteed Uptime SLA',
-                    'On-Premise / Private Cloud Deployment'
+                    'Unlimited Team Members',
+                    'Guaranteed Compliance, SSO & SAML 2.0',
+                    'Audit-Ready Event & Security Logs',
+                    'Dedicated Customer Success Manager (CSM)',
+                    'Custom Uptime SLA & Private Deployment',
+                    'On-Premise / Private Cloud Hosting'
                   ].map((feat, i) => (
                     <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 'var(--font-xs)', color: 'var(--text-secondary)' }}>
                       <CheckCircle2 size={16} color="#8b5cf6" />
@@ -720,7 +716,7 @@ export default function LandingPage() {
               </div>
 
               <a href="mailto:enterprise@orka.ai" className="btn-secondary" style={{ width: '100%', marginTop: 32, textDecoration: 'none', textAlign: 'center' }}>
-                Contact Enterprise Sales
+                Contact Sales
               </a>
             </div>
           </div>
