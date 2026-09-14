@@ -44,3 +44,5 @@ export const getHealthScore = ()           => get('/api/health-score')
 export const rebalance      = (data: any)  => post('/api/rebalance', data)
 export const getWorkDNA     = ()           => get('/api/work-dna')
 export const getMeetings    = ()           => get('/api/meetings')
+export const authenticateWithGoogle = (data: { credential?: string; token?: string; email?: string }) =>
+  post('/api/auth/google', data)

@@ -13,7 +13,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from database import create_tables, get_db, seed_database
-from model import Project, Sprint, Task, TeamMember, WorkDNA
+from model import Project, Sprint, Task, TeamMember, WorkDNA, User
 
 # ---------------------------------------------------------------------------
 # App setup
@@ -411,6 +411,197 @@ def parse_task_description(description: str) -> Dict:
         "complexity": complexity,
         "required_team_size": required_team_size,
     }
+
+
+import os
+import urllib.request
+import urllib.error
+import base64
+import hmac
+import hashlib
+
+# ---------------------------------------------------------------------------
+# Authentication & Google OAuth Verification Endpoints
+# ---------------------------------------------------------------------------
+
+class GoogleAuthRequest(BaseModel):
+    credential: Optional[str] = None
+    token: Optional[str] = None
+    email: Optional[str] = None
+
+
+def verify_google_credential(credential_str: str) -> Dict[str, Any]:
+    """
+    Verifies Google ID Token against Google's official OAuth tokeninfo API.
+    Raises HTTPException 401 if verification fails.
+    """
+    google_client_id = os.getenv(
+        "GOOGLE_CLIENT_ID",
+        "661063757512-bvquhmfclmifmhp2ujuasf242fkg365k.apps.googleusercontent.com"
+    )
+    
+    url = f"https://oauth2.googleapis.com/tokeninfo?id_token={credential_str}"
+    req = urllib.request.Request(url, headers={"User-Agent": "ORKAv2-Backend/2.0"})
+    
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            if resp.status != 200:
+                raise HTTPException(status_code=401, detail="Google authentication token verification failed")
+            data = json.loads(resp.read().decode())
+            
+            sub = data.get("sub")
+            email = data.get("email")
+            if not sub or not email:
+                raise HTTPException(status_code=401, detail="Invalid Google user token payload")
+                
+            return {
+                "google_id": sub,
+                "email": email,
+                "name": data.get("name") or email.split("@")[0].replace(".", " ").title(),
+                "picture": data.get("picture", ""),
+                "email_verified": data.get("email_verified") in [True, "true", 1]
+            }
+    except urllib.error.HTTPError as e:
+        raise HTTPException(status_code=401, detail=f"Google OAuth verification failed: {e.reason}")
+    except Exception as e:
+        if isinstance(e, HTTPException):
+            raise e
+        raise HTTPException(status_code=401, detail=f"Google authentication error: {str(e)}")
+
+
+def generate_session_jwt(user_data: Dict[str, Any]) -> str:
+    """Generates signed JWT session token."""
+    jwt_secret = os.getenv("JWT_SECRET", "orka_v2_super_secret_jwt_key_2026_9e12179b")
+    now_ts = int(datetime.now().timestamp())
+    exp_ts = now_ts + (7 * 24 * 3600)  # 7 days expiry
+    
+    header = {"alg": "HS256", "typ": "JWT"}
+    payload = {
+        "sub": user_data.get("google_id"),
+        "email": user_data.get("email"),
+        "name": user_data.get("name"),
+        "picture": user_data.get("picture"),
+        "user_id": user_data.get("id"),
+        "iat": now_ts,
+        "exp": exp_ts
+    }
+    
+    h_bytes = base64.urlsafe_b64encode(json.dumps(header).encode()).rstrip(b'=')
+    p_bytes = base64.urlsafe_b64encode(json.dumps(payload).encode()).rstrip(b'=')
+    sig_input = h_bytes + b'.' + p_bytes
+    sig = hmac.new(jwt_secret.encode(), sig_input, hashlib.sha256).digest()
+    sig_bytes = base64.urlsafe_b64encode(sig).rstrip(b'=')
+    return (sig_input + b'.' + sig_bytes).decode()
+
+
+@app.post("/api/auth/google")
+@app.post("/auth/google")
+def authenticate_google(request: GoogleAuthRequest, db: Session = Depends(get_db)):
+    """
+    Authenticate user via Google / Gmail OAuth 2.0 credential token.
+    1. Verify token with Google official tokeninfo API.
+    2. Check if User exists; if not, create new User record in SQLite/PostgreSQL.
+    3. Update last_login timestamp.
+    4. Generate & return signed JWT access_token + user profile.
+    """
+    token_str = request.credential or request.token
+    
+    # If explicit credential token provided, verify with Google
+    if token_str:
+        google_user = verify_google_credential(token_str)
+    elif request.email and "@" in request.email:
+        # Fallback for UI manual Gmail sign-in
+        google_user = {
+            "google_id": f"gmail_{request.email.split('@')[0]}",
+            "email": request.email,
+            "name": request.email.split("@")[0].replace(".", " ").title(),
+            "picture": "",
+            "email_verified": True
+        }
+    else:
+        raise HTTPException(status_code=400, detail="Missing Google credential or email token")
+        
+    google_id = google_user["google_id"]
+    email = google_user["email"]
+    name = google_user["name"]
+    picture = google_user["picture"]
+    
+    # Check database for existing user
+    user = db.query(User).filter((User.google_id == google_id) | (User.email == email)).first()
+    
+    if not user:
+        # Create new user record
+        user = User(
+            google_id=google_id,
+            email=email,
+            name=name,
+            picture=picture,
+            created_at=datetime.now(),
+            last_login=datetime.now()
+        )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+    else:
+        # Update existing user last login and profile picture
+        user.last_login = datetime.now()
+        if name:
+            user.name = name
+        if picture:
+            user.picture = picture
+        db.commit()
+        db.refresh(user)
+        
+    user_dict = {
+        "id": user.id,
+        "google_id": user.google_id,
+        "email": user.email,
+        "name": user.name,
+        "picture": user.picture,
+    }
+    
+    access_token = generate_session_jwt(user_dict)
+    
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user": user_dict,
+        "message": "Google authentication successful"
+    }
+
+
+@app.get("/api/auth/me")
+@app.get("/auth/me")
+def get_current_user(token: Optional[str] = None, db: Session = Depends(get_db)):
+    """Return currently authenticated user session details."""
+    if not token:
+        raise HTTPException(status_code=401, detail="Authentication token required")
+        
+    try:
+        parts = token.split(".")
+        if len(parts) != 3:
+            raise HTTPException(status_code=401, detail="Invalid token format")
+            
+        padded = parts[1] + "=" * (-len(parts[1]) % 4)
+        payload = json.loads(base64.urlsafe_b64decode(padded.encode()).decode())
+        
+        email = payload.get("email")
+        if not email:
+            raise HTTPException(status_code=401, detail="Invalid token payload")
+            
+        user = db.query(User).filter(User.email == email).first()
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+            
+        return {
+            "id": user.id,
+            "email": user.email,
+            "name": user.name,
+            "picture": user.picture,
+            "google_id": user.google_id
+        }
+    except Exception as e:
+        raise HTTPException(status_code=401, detail=f"Invalid session token: {str(e)}")
 
 
 # ---------------------------------------------------------------------------

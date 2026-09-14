@@ -154,3 +154,16 @@ class WorkDNA(Base):
     burnout_triggers = Column(Text, default="")
     wfh_productivity = Column(Float, default=0.0)   # 0-100
     learning_curve = Column(Text, default="")
+
+
+class User(Base):
+    """Represents a user account authenticated via Google / Gmail OAuth 2.0."""
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    google_id = Column(String(255), unique=True, index=True, nullable=False)
+    email = Column(String(255), unique=True, index=True, nullable=False)
+    name = Column(String(255), nullable=True)
+    picture = Column(String(512), nullable=True)
+    created_at = Column(DateTime, default=datetime.now)
+    last_login = Column(DateTime, default=datetime.now)
