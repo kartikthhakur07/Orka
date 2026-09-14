@@ -20,56 +20,125 @@ export default function LandingPage() {
       {/* Sticky Header Navbar */}
       <Navbar />
 
-      {/* ── 1. Hero Section (Warm Neutral Canvas + Starbucks Green Headline) ─────── */}
-      <section style={{ position: 'relative', padding: 'clamp(48px, 7vw, 96px) 0', background: 'var(--bg-canvas)' }}>
-        <div className="container" style={{ textAlign: 'center', position: 'relative', zIndex: 1 }}>
-          {/* Top Badge */}
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 18px', borderRadius: 'var(--radius-pill)', background: 'var(--green-light)', border: '1px solid rgba(0, 98, 65, 0.2)', marginBottom: 24, maxWidth: '100%' }}>
-            <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#00754A', boxShadow: '0 0 8px #00754A', flexShrink: 0 }} />
-            <span style={{ fontSize: 'var(--font-xs)', fontWeight: 700, color: '#006241', letterSpacing: '-0.01em' }}>
-              Now with real-time burnout prediction
-            </span>
-          </div>
+      {/* ── 1. Hero Section (Split 50/50 Layout matching exact screenshot) ──────── */}
+      <section style={{ position: 'relative', padding: 'clamp(40px, 6vw, 80px) 0', background: 'var(--bg-canvas)' }}>
+        <div className="container">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 'clamp(32px, 5vw, 64px)', alignItems: 'center' }}>
+            {/* Left Hero Column */}
+            <div>
+              {/* Top Pill Badge */}
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 18px', borderRadius: 'var(--radius-pill)', background: 'var(--green-light)', border: '1px solid rgba(0, 98, 65, 0.2)', marginBottom: 24, maxWidth: '100%' }}>
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#00754A', boxShadow: '0 0 8px #00754A', flexShrink: 0 }} />
+                <span style={{ fontSize: 'var(--font-xs)', fontWeight: 700, color: '#006241', letterSpacing: '-0.01em' }}>
+                  Now with real-time burnout prediction
+                </span>
+              </div>
 
-          {/* Headline */}
-          <h1 style={{
-            fontSize: 'clamp(32px, 5.5vw, 58px)',
-            fontWeight: 800,
-            lineHeight: 1.15,
-            letterSpacing: '-0.01em',
-            color: 'var(--text-black)',
-            maxWidth: 960,
-            margin: '0 auto 24px',
-          }}>
-            The AI Decision Engine for <br />
-            <span style={{ color: '#006241' }}>
-              Modern Engineering
-            </span> Teams
-          </h1>
+              {/* Headline */}
+              <h1 style={{
+                fontSize: 'clamp(32px, 4.8vw, 54px)',
+                fontWeight: 800,
+                lineHeight: 1.15,
+                letterSpacing: '-0.01em',
+                color: 'var(--text-black)',
+                marginBottom: 20,
+              }}>
+                The AI Decision Engine for <br />
+                <span style={{ color: '#006241' }}>
+                  Modern Engineering Teams
+                </span>
+              </h1>
 
-          {/* Supporting Text */}
-          <p style={{
-            fontSize: 'var(--font-base)',
-            color: 'var(--text-black-soft)',
-            maxWidth: 760,
-            margin: '0 auto 36px',
-            lineHeight: 1.5,
-          }}>
-            Automate task delegation, predict burnout 14 days early, and run sprint planning in 30 seconds. Built for engineering managers who are tired of managing spreadsheets.
-          </p>
+              {/* Supporting Text */}
+              <p style={{
+                fontSize: 'var(--font-base)',
+                color: 'var(--text-black-soft)',
+                maxWidth: 580,
+                marginBottom: 32,
+                lineHeight: 1.55,
+              }}>
+                Automate task delegation, predict burnout 14 days early, and run sprint planning in 30 seconds. Built for engineering managers who are tired of managing spreadsheets.
+              </p>
 
-          {/* Hero CTAs (50px full-pill buttons) */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, marginBottom: 56, flexWrap: 'wrap' }}>
-            <Link href="/dashboard" className="btn-primary" style={{ padding: '14px 34px', fontSize: 'var(--font-xs)' }}>
-              Try the dashboard <ArrowRight size={16} />
-            </Link>
-            <Link href="/delegator" className="btn-secondary" style={{ padding: '14px 28px', fontSize: 'var(--font-xs)' }}>
-              <Play size={15} color="#00754A" /> Watch 2-min demo
-            </Link>
+              {/* Hero CTAs (50px full-pill buttons) */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 28, flexWrap: 'wrap' }}>
+                <Link href="/dashboard" className="btn-primary" style={{ padding: '14px 32px', fontSize: 'var(--font-xs)' }}>
+                  Try the dashboard <ArrowRight size={16} />
+                </Link>
+                <Link href="/delegator" className="btn-secondary" style={{ padding: '14px 24px', fontSize: 'var(--font-xs)' }}>
+                  <Play size={15} color="#00754A" /> Watch 2-min demo
+                </Link>
+              </div>
+
+              {/* Micro-Checkmarks Row */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap', fontSize: 'var(--font-xs)', color: 'var(--text-black-soft)', fontWeight: 600 }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ color: '#00754A', fontWeight: 800 }}>✓</span> No credit card required
+                </span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ color: '#00754A', fontWeight: 800 }}>✓</span> Free for small teams
+                </span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ color: '#00754A', fontWeight: 800 }}>✓</span> Setup in minutes
+                </span>
+              </div>
+            </div>
+
+            {/* Right Hero Column — Interactive Team Office Showcase with Overlays */}
+            <div style={{ position: 'relative' }}>
+              <div style={{ position: 'relative', borderRadius: 20, overflow: 'hidden', boxShadow: '0 20px 40px rgba(0, 98, 65, 0.15)', border: '2px solid rgba(255,255,255,0.8)' }}>
+                <img
+                  src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80"
+                  alt="Engineering team collaborating in cafe open office"
+                  style={{ width: '100%', height: 'auto', display: 'block', maxHeight: 420, objectFit: 'cover' }}
+                />
+
+                {/* Overlay 1: Live Sprint Whiteboard Glass Widget */}
+                <div style={{
+                  position: 'absolute', top: 20, right: 20, width: 260,
+                  background: 'rgba(255, 255, 255, 0.94)', backdropFilter: 'blur(10px)',
+                  borderRadius: 14, padding: 16, border: '1px solid rgba(255, 255, 255, 0.5)',
+                  boxShadow: '0 10px 25px rgba(0,0,0,0.15)'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                    <span style={{ fontSize: '13px', fontWeight: 800, color: '#006241' }}>Sprint 47</span>
+                    <span style={{ fontSize: '10px', padding: '2px 8px', borderRadius: 99, background: '#d4e9e2', color: '#006241', fontWeight: 800 }}>● On Track</span>
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 10px', borderRadius: 8, background: '#f8fafc', fontSize: '11px' }}>
+                      <span style={{ fontWeight: 600, color: '#0f172a' }}>Design system updates</span>
+                      <span style={{ background: '#fef2f2', color: '#dc2626', padding: '2px 6px', borderRadius: 4, fontWeight: 700, fontSize: '10px' }}>High</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 10px', borderRadius: 8, background: '#f8fafc', fontSize: '11px' }}>
+                      <span style={{ fontWeight: 600, color: '#0f172a' }}>API integration</span>
+                      <span style={{ background: '#fffbeb', color: '#b45309', padding: '2px 6px', borderRadius: 4, fontWeight: 700, fontSize: '10px' }}>Medium</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 10px', borderRadius: 8, background: '#f8fafc', fontSize: '11px' }}>
+                      <span style={{ fontWeight: 600, color: '#0f172a' }}>Testing & QA</span>
+                      <span style={{ background: '#f0fdf4', color: '#16a34a', padding: '2px 6px', borderRadius: 4, fontWeight: 700, fontSize: '10px' }}>Low</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Overlay 2: Sticky Wall Note */}
+                <div style={{
+                  position: 'absolute', bottom: 20, right: 20,
+                  background: '#faf6ee', border: '1px solid #dfc49d',
+                  borderRadius: 8, padding: '10px 14px',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                  transform: 'rotate(-2deg)'
+                }}>
+                  <p style={{ fontSize: '11px', fontWeight: 800, color: '#006241', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    Build · Automate · Scale · Together
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Central Dashboard Control Stage Preview Mockup */}
-          <div style={{ position: 'relative', maxWidth: 1040, margin: '0 auto', width: '100%' }}>
+          <div style={{ position: 'relative', width: '100%', marginTop: 'clamp(40px, 6vw, 64px)' }}>
             <div className="glass-card p-6" style={{
               borderRadius: 16,
               border: '1px solid var(--border-card)',
@@ -116,28 +185,69 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── 2. Stats Section Ribbon ─────────────────────────────────────────── */}
-      <section style={{ padding: '36px 0', background: '#ffffff', borderTop: '1px solid var(--border-subtle)', borderBottom: '1px solid var(--border-subtle)' }}>
-        <div className="container stats-grid" style={{ textAlign: 'center' }}>
-          <div>
-            <p style={{ fontSize: 'clamp(28px, 4vw, 42px)', fontWeight: 900, color: '#006241', lineHeight: 1 }}>94%</p>
-            <p style={{ fontSize: 'var(--font-xs)', color: 'var(--text-black)', marginTop: 8, fontWeight: 700 }}>Task accuracy rate</p>
-            <p style={{ fontSize: '11px', color: 'var(--text-black-soft)' }}>vs manual assignment</p>
+      {/* ── 2. 4-Feature Quick Highlights Ribbon below Control Stage ────────── */}
+      <section style={{ padding: '28px 0', background: '#ffffff', borderTop: '1px solid var(--border-subtle)', borderBottom: '1px solid var(--border-subtle)' }}>
+        <div className="container">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 24 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+              <div style={{ width: 42, height: 42, borderRadius: '50%', background: '#d4e9e2', color: '#00754A', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <Brain size={20} />
+              </div>
+              <div>
+                <p style={{ fontSize: 'var(--font-xs)', fontWeight: 800, color: 'var(--text-black)' }}>Smarter Delegation</p>
+                <p style={{ fontSize: '11px', color: 'var(--text-black-soft)', marginTop: 2 }}>AI assigns work to the right people.</p>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+              <div style={{ width: 42, height: 42, borderRadius: '50%', background: '#eff6ff', color: '#1d4ed8', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <Flame size={20} />
+              </div>
+              <div>
+                <p style={{ fontSize: 'var(--font-xs)', fontWeight: 800, color: 'var(--text-black)' }}>Predict Burnout</p>
+                <p style={{ fontSize: '11px', color: 'var(--text-black-soft)', marginTop: 2 }}>Identify risks 14 days earlier.</p>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+              <div style={{ width: 42, height: 42, borderRadius: '50%', background: '#f0fdfa', color: '#0f766e', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <CalendarDays size={20} />
+              </div>
+              <div>
+                <p style={{ fontSize: 'var(--font-xs)', fontWeight: 800, color: 'var(--text-black)' }}>Plan Faster</p>
+                <p style={{ fontSize: '11px', color: 'var(--text-black-soft)', marginTop: 2 }}>Turn hours of planning into seconds.</p>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+              <div style={{ width: 42, height: 42, borderRadius: '50%', background: '#f5f3ff', color: '#6d28d9', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <Shield size={20} />
+              </div>
+              <div>
+                <p style={{ fontSize: 'var(--font-xs)', fontWeight: 800, color: 'var(--text-black)' }}>Built for Teams</p>
+                <p style={{ fontSize: '11px', color: 'var(--text-black-soft)', marginTop: 2 }}>Designed for real dev workflows.</p>
+              </div>
+            </div>
           </div>
-          <div>
-            <p style={{ fontSize: 'clamp(28px, 4vw, 42px)', fontWeight: 900, color: '#1d4ed8', lineHeight: 1 }}>30s</p>
-            <p style={{ fontSize: 'var(--font-xs)', color: 'var(--text-black)', marginTop: 8, fontWeight: 700 }}>Average delegation time</p>
-            <p style={{ fontSize: '11px', color: 'var(--text-black-soft)' }}>from sprint planning</p>
-          </div>
-          <div>
-            <p style={{ fontSize: 'clamp(28px, 4vw, 42px)', fontWeight: 900, color: '#6d28d9', lineHeight: 1 }}>14d</p>
-            <p style={{ fontSize: 'var(--font-xs)', color: 'var(--text-black)', marginTop: 8, fontWeight: 700 }}>Burnout early alert</p>
-            <p style={{ fontSize: '11px', color: 'var(--text-black-soft)' }}>lead time</p>
-          </div>
-          <div>
-            <p style={{ fontSize: 'clamp(28px, 4vw, 42px)', fontWeight: 900, color: '#b45309', lineHeight: 1 }}>3.2×</p>
-            <p style={{ fontSize: 'var(--font-xs)', color: 'var(--text-black)', marginTop: 8, fontWeight: 700 }}>ROI in 90 days</p>
-            <p style={{ fontSize: '11px', color: 'var(--text-black-soft)' }}>avg across Pro teams</p>
+        </div>
+      </section>
+
+      {/* ── 3. Logo Cloud / Social Proof Ribbon ─────────────────────────────── */}
+      <section style={{ padding: '36px 0', background: 'var(--bg-canvas)', borderBottom: '1px solid var(--border-subtle)' }}>
+        <div className="container" style={{ textAlign: 'center' }}>
+          <p style={{ fontSize: '11px', fontWeight: 800, color: 'var(--text-black-soft)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 20 }}>
+            TRUSTED BY ENGINEERING TEAMS WORLDWIDE
+          </p>
+
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(24px, 4vw, 48px)', flexWrap: 'wrap', opacity: 0.7 }}>
+            <span style={{ fontSize: 'var(--font-md)', fontWeight: 800, color: '#334155', letterSpacing: '-0.02em' }}>Google</span>
+            <span style={{ fontSize: 'var(--font-md)', fontWeight: 800, color: '#334155', letterSpacing: '-0.02em' }}>Microsoft</span>
+            <span style={{ fontSize: 'var(--font-md)', fontWeight: 900, color: '#6366f1', letterSpacing: '-0.03em' }}>stripe</span>
+            <span style={{ fontSize: 'var(--font-md)', fontWeight: 800, color: '#0f172a' }}>N Notion</span>
+            <span style={{ fontSize: 'var(--font-md)', fontWeight: 800, color: '#16a34a' }}>Spotify</span>
+            <span style={{ fontSize: 'var(--font-md)', fontWeight: 800, color: '#ff5a5f' }}>airbnb</span>
+            <span style={{ fontSize: 'var(--font-md)', fontWeight: 800, color: '#4a154b' }}># slack</span>
+            <span style={{ fontSize: 'var(--font-md)', fontWeight: 800, color: '#0052cc' }}>ATLASSIAN</span>
           </div>
         </div>
       </section>
