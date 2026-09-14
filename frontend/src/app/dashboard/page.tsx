@@ -7,8 +7,7 @@ import { BurnoutRadar } from '@/components/BurnoutRadar'
 import { TaskTable, TaskItem } from '@/components/TaskTable'
 import { TeamCapacityCard } from '@/components/TeamCapacityCard'
 import { AIDelegateModal } from '@/components/AIDelegateModal'
-import { Badge } from '@/components/Badge'
-import { CheckSquare, Users, TrendingUp, Clock, Brain } from 'lucide-react'
+import { CheckSquare, Users, TrendingUp, Clock, Brain, Plus } from 'lucide-react'
 
 export default function DashboardPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
@@ -32,7 +31,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div style={{ background: '#f8fafc', minHeight: '100vh', color: '#0f172a' }}>
+    <div style={{ background: 'var(--bg-canvas)', minHeight: '100vh', color: 'var(--text-black)' }}>
       {/* Top Bar Header */}
       <TopBar
         onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)}
@@ -40,10 +39,10 @@ export default function DashboardPage() {
         onSearchChange={setSearchQuery}
       />
 
-      {/* Main Dashboard Container */}
-      <div style={{ padding: '24px 32px', maxWidth: 1400, margin: '0 auto' }}>
+      {/* Main Dashboard Container (Golden Ratio Spacing) */}
+      <div style={{ padding: 'var(--space-5)', maxWidth: 1440, margin: '0 auto' }}>
         {/* Dashboard Header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28, flexWrap: 'wrap', gap: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 32, flexWrap: 'wrap', gap: 16 }}>
           <div>
             <h1 className="section-title" style={{ fontSize: 'var(--font-xl)', fontWeight: 800 }}>
               Good morning, Priya ☀️
@@ -53,85 +52,85 @@ export default function DashboardPage() {
             </p>
           </div>
 
-          {/* Primary CTA Button */}
+          {/* Primary CTA Button (50px Full Pill) */}
           <button
             className="btn-primary"
             onClick={() => setIsModalOpen(true)}
-            style={{ padding: '12px 24px', fontSize: 'var(--font-xs)', borderRadius: 12, background: '#16a34a', boxShadow: '0 4px 14px rgba(22, 163, 74, 0.3)' }}
+            style={{ padding: '12px 28px', fontSize: 'var(--font-xs)' }}
           >
             <Brain size={16} /> AI Delegate
           </button>
         </div>
 
         {/* 4 Stat Cards */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 28 }}>
-          <div className="glass-card p-5" style={{ borderRadius: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 32 }}>
+          <div className="glass-card p-5" style={{ borderRadius: 12 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-              <span style={{ fontSize: 'var(--font-xs)', color: '#64748b', fontWeight: 600 }}>Active Tasks</span>
-              <div style={{ width: 32, height: 32, borderRadius: 8, background: '#f0fdf4', color: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <span style={{ fontSize: 'var(--font-xs)', color: 'var(--text-black-soft)', fontWeight: 600 }}>Active Tasks</span>
+              <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--green-light)', color: '#006241', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <CheckSquare size={16} />
               </div>
             </div>
-            <p style={{ fontSize: 'var(--font-xl)', fontWeight: 800, color: '#0f172a', lineHeight: 1 }}>
+            <p style={{ fontSize: 'var(--font-xl)', fontWeight: 800, color: 'rgba(0,0,0,0.87)', lineHeight: 1 }}>
               47
             </p>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 8 }}>
               <span className="badge badge-green">+8 this sprint</span>
-              <span style={{ fontSize: '11px', color: '#64748b' }}>vs last week</span>
+              <span style={{ fontSize: '11px', color: 'var(--text-black-soft)' }}>vs last week</span>
             </div>
           </div>
 
-          <div className="glass-card p-5" style={{ borderRadius: 16 }}>
+          <div className="glass-card p-5" style={{ borderRadius: 12 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-              <span style={{ fontSize: 'var(--font-xs)', color: '#64748b', fontWeight: 600 }}>Active Engineers</span>
-              <div style={{ width: 32, height: 32, borderRadius: 8, background: '#eff6ff', color: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <span style={{ fontSize: 'var(--font-xs)', color: 'var(--text-black-soft)', fontWeight: 600 }}>Active Engineers</span>
+              <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#eff6ff', color: '#1d4ed8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Users size={16} />
               </div>
             </div>
-            <p style={{ fontSize: 'var(--font-xl)', fontWeight: 800, color: '#0f172a', lineHeight: 1 }}>
+            <p style={{ fontSize: 'var(--font-xl)', fontWeight: 800, color: 'rgba(0,0,0,0.87)', lineHeight: 1 }}>
               12 / 12
             </p>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 8 }}>
               <span className="badge badge-blue">100% Online</span>
-              <span style={{ fontSize: '11px', color: '#64748b' }}>2 on leave</span>
+              <span style={{ fontSize: '11px', color: 'var(--text-black-soft)' }}>2 on leave</span>
             </div>
           </div>
 
-          <div className="glass-card p-5" style={{ borderRadius: 16 }}>
+          <div className="glass-card p-5" style={{ borderRadius: 12 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-              <span style={{ fontSize: 'var(--font-xs)', color: '#64748b', fontWeight: 600 }}>Sprint Velocity</span>
-              <div style={{ width: 32, height: 32, borderRadius: 8, background: '#f5f3ff', color: '#7c3aed', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <span style={{ fontSize: 'var(--font-xs)', color: 'var(--text-black-soft)', fontWeight: 600 }}>Sprint Velocity</span>
+              <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#f5f3ff', color: '#6d28d9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <TrendingUp size={16} />
               </div>
             </div>
-            <p style={{ fontSize: 'var(--font-xl)', fontWeight: 800, color: '#0f172a', lineHeight: 1 }}>
+            <p style={{ fontSize: 'var(--font-xl)', fontWeight: 800, color: 'rgba(0,0,0,0.87)', lineHeight: 1 }}>
               94%
             </p>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 8 }}>
               <span className="badge badge-indigo">+6% vs target</span>
-              <span style={{ fontSize: '11px', color: '#64748b' }}>Optimal speed</span>
+              <span style={{ fontSize: '11px', color: 'var(--text-black-soft)' }}>Optimal speed</span>
             </div>
           </div>
 
-          <div className="glass-card p-5" style={{ borderRadius: 16 }}>
+          <div className="glass-card p-5" style={{ borderRadius: 12 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-              <span style={{ fontSize: 'var(--font-xs)', color: '#64748b', fontWeight: 600 }}>Avg Response Time</span>
-              <div style={{ width: 32, height: 32, borderRadius: 8, background: '#fffbeb', color: '#b45309', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <span style={{ fontSize: 'var(--font-xs)', color: 'var(--text-black-soft)', fontWeight: 600 }}>Avg Response Time</span>
+              <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#fffbeb', color: '#b45309', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Clock size={16} />
               </div>
             </div>
-            <p style={{ fontSize: 'var(--font-xl)', fontWeight: 800, color: '#0f172a', lineHeight: 1 }}>
+            <p style={{ fontSize: 'var(--font-xl)', fontWeight: 800, color: 'rgba(0,0,0,0.87)', lineHeight: 1 }}>
               2.4h
             </p>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 8 }}>
               <span className="badge badge-amber">-0.8h this week</span>
-              <span style={{ fontSize: '11px', color: '#64748b' }}>Fast triage</span>
+              <span style={{ fontSize: '11px', color: 'var(--text-black-soft)' }}>Fast triage</span>
             </div>
           </div>
         </div>
 
         {/* Main Grid: Sprint Burndown vs Burnout Radar */}
-        <div className="golden-grid" style={{ marginBottom: 28 }}>
+        <div className="golden-grid" style={{ marginBottom: 32 }}>
           <BurndownChart />
           <BurnoutRadar />
         </div>
@@ -142,6 +141,16 @@ export default function DashboardPage() {
         {/* Team Capacity Cards Component (1 col mobile, 2 col tablet, 5 col desktop) */}
         <TeamCapacityCard />
       </div>
+
+      {/* Signature Floating Circular "Frap" Button (56px #00754A Green Accent) */}
+      <button
+        className="frap-btn"
+        onClick={() => setIsModalOpen(true)}
+        aria-label="Open AI Delegation"
+        title="Open AI Delegation"
+      >
+        <Plus size={24} />
+      </button>
 
       {/* AI Task Delegation Interactive Modal */}
       <AIDelegateModal

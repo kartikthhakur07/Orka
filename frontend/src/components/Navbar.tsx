@@ -10,72 +10,72 @@ export function Navbar() {
         position: 'sticky',
         top: 0,
         zIndex: 100,
-        background: 'rgba(255, 255, 255, 0.92)',
-        backdropFilter: 'blur(16px)',
-        borderBottom: '1px solid #e2e8f0',
-        padding: '12px var(--space-4)',
+        background: '#ffffff',
+        borderBottom: '1px solid var(--border-subtle)',
+        padding: '16px var(--space-5)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.06)'
       }}
     >
-      {/* Logo */}
+      {/* Brand Logo */}
       <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 10 }}>
         <div
           style={{
-            width: 32,
-            height: 32,
-            borderRadius: 8,
-            background: '#16a34a',
+            width: 34,
+            height: 34,
+            borderRadius: '50%',
+            background: '#006241',
             color: '#ffffff',
-            fontWeight: 900,
+            fontWeight: 800,
             fontSize: '18px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: '0 2px 8px rgba(22, 163, 74, 0.3)',
+            boxShadow: '0 2px 6px rgba(0, 98, 65, 0.3)',
           }}
         >
           O
         </div>
-        <span style={{ fontSize: '1.25rem', fontWeight: 800, letterSpacing: '-0.02em', color: '#0f172a' }}>
-          ORKA <span style={{ color: '#16a34a' }}>v2</span>
+        <span style={{ fontSize: '1.4rem', fontWeight: 800, letterSpacing: '-0.01em', color: '#006241' }}>
+          ORKA <span style={{ color: '#00754A' }}>v2</span>
         </span>
       </Link>
 
-      {/* Navigation Links */}
-      <nav style={{ display: 'flex', alignItems: 'center', gap: 28, fontSize: 'var(--font-sm)', fontWeight: 600 }}>
-        <a href="#features" style={{ color: '#475569', textDecoration: 'none', transition: 'color 150ms' }}>
+      {/* Navigation Links (Tight -0.01em tracking, generous line-height) */}
+      <nav style={{ display: 'flex', alignItems: 'center', gap: 32, fontSize: 'var(--font-sm)', fontWeight: 600 }}>
+        <a href="#features" style={{ color: 'rgba(0,0,0,0.87)', textDecoration: 'none', transition: 'color 0.2s ease' }}>
           Features
         </a>
-        <a href="#algorithm" style={{ color: '#475569', textDecoration: 'none', transition: 'color 150ms' }}>
+        <a href="#algorithm" style={{ color: 'rgba(0,0,0,0.87)', textDecoration: 'none', transition: 'color 0.2s ease' }}>
           Algorithm
         </a>
-        <a href="#pricing" style={{ color: '#475569', textDecoration: 'none', transition: 'color 150ms' }}>
+        <a href="#pricing" style={{ color: 'rgba(0,0,0,0.87)', textDecoration: 'none', transition: 'color 0.2s ease' }}>
           Pricing
         </a>
         <a
           href="https://orkapi.onrender.com/docs"
           target="_blank"
           rel="noreferrer"
-          style={{ color: '#475569', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 4 }}
+          style={{ color: 'rgba(0,0,0,0.87)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 4 }}
         >
           API Docs <ExternalLink size={12} />
         </a>
       </nav>
 
-      {/* Actions */}
+      {/* Actions (50px full-pill buttons) */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
         <a
           href="https://github.com/kartikthhakur07/Orka"
           target="_blank"
           rel="noreferrer"
           className="btn-secondary"
-          style={{ textDecoration: 'none', fontSize: 'var(--font-xs)', padding: '8px 16px' }}
+          style={{ fontSize: 'var(--font-xs)', padding: '8px 20px' }}
         >
           GitHub Repo
         </a>
-        <Link href="/dashboard" className="btn-primary" style={{ textDecoration: 'none', fontSize: 'var(--font-xs)', padding: '8px 18px' }}>
+        <Link href="/dashboard" className="btn-primary" style={{ fontSize: 'var(--font-xs)', padding: '8px 22px' }}>
           Open dashboard <ArrowRight size={14} />
         </Link>
       </div>

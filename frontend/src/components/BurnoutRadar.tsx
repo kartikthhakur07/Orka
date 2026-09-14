@@ -21,13 +21,13 @@ export function BurnoutRadar({ members }: { members?: BurnoutMember[] }) {
   const list = members && members.length > 0 ? members : defaultMembers
 
   return (
-    <div className="glass-card p-6" style={{ borderRadius: 20 }}>
+    <div className="glass-card p-6" style={{ borderRadius: 12 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
         <div>
-          <h3 style={{ fontSize: 'var(--font-md)', fontWeight: 800, color: '#0f172a' }}>
+          <h3 style={{ fontSize: 'var(--font-md)', fontWeight: 700, color: '#006241' }}>
             Burnout Radar
           </h3>
-          <p style={{ fontSize: 'var(--font-xs)', color: '#64748b', marginTop: 2 }}>
+          <p style={{ fontSize: 'var(--font-xs)', color: 'var(--text-black-soft)', marginTop: 2 }}>
             14-day rolling risk score
           </p>
         </div>
@@ -36,7 +36,7 @@ export function BurnoutRadar({ members }: { members?: BurnoutMember[] }) {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         {list.map((m, idx) => {
-          const color = m.risk === 'High' ? '#dc2626' : m.risk === 'Medium' ? '#d97706' : '#16a34a'
+          const color = m.risk === 'High' ? '#c82014' : m.risk === 'Medium' ? '#b45309' : '#00754A'
           const badgeVariant = m.risk === 'High' ? 'crimson' : m.risk === 'Medium' ? 'amber' : 'green'
           const initials = m.name.split(' ').map(w => w[0]).join('').toUpperCase()
 
@@ -53,10 +53,10 @@ export function BurnoutRadar({ members }: { members?: BurnoutMember[] }) {
                     {initials}
                   </div>
                   <div>
-                    <p style={{ fontSize: 'var(--font-xs)', fontWeight: 700, color: '#0f172a', lineHeight: 1.1 }}>
+                    <p style={{ fontSize: 'var(--font-xs)', fontWeight: 700, color: 'var(--text-black)', lineHeight: 1.1 }}>
                       {m.name}
                     </p>
-                    <p style={{ fontSize: '11px', color: '#64748b' }}>{m.role}</p>
+                    <p style={{ fontSize: '11px', color: 'var(--text-black-soft)' }}>{m.role}</p>
                   </div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>

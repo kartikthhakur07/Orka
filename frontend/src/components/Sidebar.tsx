@@ -38,26 +38,26 @@ export function Sidebar() {
         <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 10 }}>
           <div
             style={{
-              width: 32,
-              height: 32,
-              borderRadius: 8,
-              background: '#16a34a',
-              color: '#ffffff',
+              width: 34,
+              height: 34,
+              borderRadius: '50%',
+              background: '#ffffff',
+              color: '#006241',
               fontWeight: 900,
               fontSize: '18px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 2px 8px rgba(22, 163, 74, 0.4)',
+              boxShadow: '0 2px 6px rgba(0, 0, 0, 0.2)',
             }}
           >
             O
           </div>
           <div>
-            <p style={{ fontSize: '1.15rem', fontWeight: 800, letterSpacing: '-0.02em', color: '#f8fafc', lineHeight: 1.1 }}>
-              ORKA <span style={{ color: '#4ade80' }}>v2</span>
+            <p style={{ fontSize: '1.2rem', fontWeight: 800, letterSpacing: '-0.01em', color: '#ffffff', lineHeight: 1.1 }}>
+              ORKA <span style={{ color: '#d4e9e2' }}>v2</span>
             </p>
-            <p style={{ fontSize: '10px', color: '#94a3b8', letterSpacing: '0.04em', textTransform: 'uppercase', marginTop: 2 }}>
+            <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.7)', letterSpacing: '0.04em', textTransform: 'uppercase', marginTop: 2 }}>
               Engineering Intelligence
             </p>
           </div>
@@ -69,7 +69,7 @@ export function Sidebar() {
         <p
           style={{
             fontSize: '11px',
-            color: '#64748b',
+            color: 'rgba(255, 255, 255, 0.5)',
             letterSpacing: '0.08em',
             textTransform: 'uppercase',
             padding: '4px 14px 8px',
@@ -95,8 +95,8 @@ export function Sidebar() {
                     width: 6,
                     height: 6,
                     borderRadius: '50%',
-                    background: '#4ade80',
-                    boxShadow: '0 0 8px #4ade80',
+                    background: '#ffffff',
+                    boxShadow: '0 0 6px #ffffff',
                     flexShrink: 0,
                   }}
                 />
@@ -114,13 +114,13 @@ export function Sidebar() {
             alignItems: 'center',
             gap: 8,
             padding: '8px 12px',
-            background: 'rgba(255, 255, 255, 0.05)',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            borderRadius: 'var(--radius-md)',
+            background: 'rgba(255, 255, 255, 0.08)',
+            border: '1px solid rgba(255, 255, 255, 0.12)',
+            borderRadius: 'var(--radius-pill)',
           }}
         >
-          <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#4ade80', boxShadow: '0 0 6px #4ade80' }} />
-          <span style={{ fontSize: '11px', color: '#94a3b8', letterSpacing: '0.02em' }}>
+          <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#d4e9e2', boxShadow: '0 0 6px #d4e9e2' }} />
+          <span style={{ fontSize: '11px', color: 'rgba(255, 255, 255, 0.8)', letterSpacing: '-0.01em' }}>
             v2.0 · Live IBM HR AI Sync
           </span>
         </div>

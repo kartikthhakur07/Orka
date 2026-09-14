@@ -2,7 +2,7 @@ import React from 'react'
 
 interface BadgeProps {
   children: React.ReactNode
-  variant?: 'indigo' | 'cobalt' | 'teal' | 'emerald' | 'amber' | 'crimson' | 'gray' | 'blue' | 'purple' | 'green' | 'red' | 'yellow' | 'cyan' | 'neutral'
+  variant?: 'indigo' | 'cobalt' | 'teal' | 'emerald' | 'amber' | 'crimson' | 'gray' | 'blue' | 'purple' | 'green' | 'red' | 'yellow' | 'cyan' | 'neutral' | 'gold'
   className?: string
   style?: React.CSSProperties
   onClick?: () => void
