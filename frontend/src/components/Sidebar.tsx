@@ -57,7 +57,7 @@ export function Sidebar() {
             <p style={{ fontSize: '1.15rem', fontWeight: 800, letterSpacing: '-0.02em', color: '#f8fafc', lineHeight: 1.1 }}>
               ORKA <span style={{ color: '#4ade80' }}>v2</span>
             </p>
-            <p style={{ fontSize: '10px', color: '#94a3b8', letterSpacing: '0.04em', uppercase: 'true', marginTop: 2 }}>
+            <p style={{ fontSize: '10px', color: '#94a3b8', letterSpacing: '0.04em', textTransform: 'uppercase', marginTop: 2 }}>
               Engineering Intelligence
             </p>
           </div>
