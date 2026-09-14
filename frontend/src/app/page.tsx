@@ -46,6 +46,20 @@ export default function LandingPage() {
   /* FAQ Accordion State */
   const [openFaq, setOpenFaq] = useState<number | null>(0)
 
+  /* Pricing State */
+  const [isAnnual, setIsAnnual] = useState(true)
+
+  /* ROI Calculator State */
+  const [teamSize, setTeamSize] = useState(15)
+  const [avgSalary, setAvgSalary] = useState(120000)
+
+  /* ROI Calculations */
+  const hoursSavedPerMonth = teamSize * 18
+  const hourlyRate = avgSalary / 2080
+  const annualSavings = Math.round(hoursSavedPerMonth * hourlyRate * 12)
+  const attritionSavings = Math.round(teamSize * 0.12 * (avgSalary * 0.45))
+  const totalImpact = annualSavings + attritionSavings
+
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-base)', color: 'var(--text-primary)', overflowX: 'hidden' }}>
       {/* Navbar */}
@@ -444,7 +458,315 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── 5. FAQ Section ─────────────────────────────────────────────────── */}
+      {/* ── 5. Interactive ROI & Cost Savings Calculator Section (#roi) ───────── */}
+      <section id="roi" style={{ padding: 'var(--space-6) var(--space-4)', maxWidth: 1280, margin: '0 auto' }}>
+        <div style={{ textAlign: 'center', marginBottom: 42 }}>
+          <Badge variant="indigo" style={{ marginBottom: 12 }}>ROI Calculator</Badge>
+          <h2 style={{ fontSize: 'var(--font-xl)', fontWeight: 800, color: 'var(--text-primary)' }}>
+            Calculate Your Team's Productivity Gains
+          </h2>
+          <p style={{ color: 'var(--text-secondary)', marginTop: 8, fontSize: 'var(--font-base)', maxWidth: 620, margin: '8px auto 0' }}>
+            Quantify reclaimed developer focus hours and burnout attrition savings with ORKA v2.0 AI.
+          </p>
+        </div>
+
+        <div className="glass-card p-8 golden-grid" style={{ alignItems: 'center' }}>
+          {/* Controls Column */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 'var(--font-sm)', fontWeight: 600, marginBottom: 10 }}>
+                <span>Engineering Team Size</span>
+                <span style={{ color: 'var(--accent-indigo)', fontWeight: 800 }}>{teamSize} Engineers</span>
+              </div>
+              <input
+                type="range" min="5" max="150" step="5"
+                value={teamSize}
+                onChange={e => setTeamSize(Number(e.target.value))}
+                style={{ width: '100%', accentColor: 'var(--accent-indigo)' }}
+              />
+            </div>
+
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 'var(--font-sm)', fontWeight: 600, marginBottom: 10 }}>
+                <span>Average Engineer Salary</span>
+                <span style={{ color: '#3b82f6', fontWeight: 800 }}>${avgSalary.toLocaleString()} / year</span>
+              </div>
+              <input
+                type="range" min="60000" max="220000" step="5000"
+                value={avgSalary}
+                onChange={e => setAvgSalary(Number(e.target.value))}
+                style={{ width: '100%', accentColor: '#3b82f6' }}
+              />
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16, paddingTop: 10 }}>
+              <div style={{ padding: 16, borderRadius: 12, background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.15)' }}>
+                <p style={{ fontSize: 'var(--font-xs)', color: 'var(--text-muted)', fontWeight: 600 }}>Reclaimed Focus Hours</p>
+                <p style={{ fontSize: 'var(--font-lg)', fontWeight: 800, color: 'var(--accent-indigo)', marginTop: 4 }}>
+                  {hoursSavedPerMonth.toLocaleString()} hrs / mo
+                </p>
+              </div>
+              <div style={{ padding: 16, borderRadius: 12, background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.15)' }}>
+                <p style={{ fontSize: 'var(--font-xs)', color: 'var(--text-muted)', fontWeight: 600 }}>Burnout Reduction</p>
+                <p style={{ fontSize: 'var(--font-lg)', fontWeight: 800, color: '#10b981', marginTop: 4 }}>
+                  -64% Attrition
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* ROI Metric Highlight Column */}
+          <div style={{
+            background: 'linear-gradient(145deg, rgba(99,102,241,0.15) 0%, rgba(9,9,11,0.95) 100%)',
+            border: '1px solid rgba(99,102,241,0.3)',
+            borderRadius: 20,
+            padding: 34,
+            textAlign: 'center'
+          }}>
+            <p style={{ fontSize: 'var(--font-xs)', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+              Estimated Annual Economic Impact
+            </p>
+            <div style={{
+              fontSize: 'var(--font-3xl)', fontWeight: 900, color: '#10b981', margin: '14px 0 6px',
+              letterSpacing: '-0.02em'
+            }}>
+              ${totalImpact.toLocaleString()}
+            </div>
+            <p style={{ fontSize: 'var(--font-xs)', color: 'var(--text-secondary)', marginBottom: 24 }}>
+              Includes ${annualSavings.toLocaleString()} in reclaimed dev hours + ${attritionSavings.toLocaleString()} in prevented turnover costs.
+            </p>
+            <Link href="/dashboard" className="btn-primary" style={{ width: '100%', textDecoration: 'none', padding: '14px' }}>
+              Unlock Productivity Gains Now <ArrowRight size={16} />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 6. Figma-Make Styled Pricing Section (#pricing) ─────────────────── */}
+      <section id="pricing" style={{ padding: 'var(--space-6) var(--space-4)', background: 'rgba(9, 9, 11, 0.7)', borderTop: '1px solid var(--border-subtle)', borderBottom: '1px solid var(--border-subtle)' }}>
+        <div style={{ maxWidth: 1280, margin: '0 auto' }}>
+          {/* Pricing Header */}
+          <div style={{ textAlign: 'center', marginBottom: 48 }}>
+            <Badge variant="cobalt" style={{ marginBottom: 12 }}>Transparent Pricing</Badge>
+            <h2 style={{ fontSize: 'var(--font-xl)', fontWeight: 800, color: 'var(--text-primary)' }}>
+              Plans Built to Scale with Your Engineering
+            </h2>
+            <p style={{ color: 'var(--text-secondary)', marginTop: 8, fontSize: 'var(--font-base)', maxWidth: 640, margin: '8px auto 0' }}>
+              Start for free with basic delegation, or unlock advanced burnout telemetry & automated WFH deciders.
+            </p>
+
+            {/* Monthly / Annual Toggle Switch */}
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 14, marginTop: 28, background: 'rgba(255,255,255,0.04)', padding: '6px 10px', borderRadius: 99, border: '1px solid var(--border-subtle)' }}>
+              <button
+                onClick={() => setIsAnnual(false)}
+                style={{
+                  padding: '8px 20px', borderRadius: 99, border: 'none',
+                  background: !isAnnual ? 'var(--accent-indigo)' : 'transparent',
+                  color: !isAnnual ? '#fff' : 'var(--text-muted)',
+                  fontSize: 'var(--font-xs)', fontWeight: 700, cursor: 'pointer', transition: 'all 200ms'
+                }}
+              >
+                Monthly Billing
+              </button>
+              <button
+                onClick={() => setIsAnnual(true)}
+                style={{
+                  padding: '8px 20px', borderRadius: 99, border: 'none',
+                  background: isAnnual ? 'var(--accent-indigo)' : 'transparent',
+                  color: isAnnual ? '#fff' : 'var(--text-muted)',
+                  fontSize: 'var(--font-xs)', fontWeight: 700, cursor: 'pointer', transition: 'all 200ms',
+                  display: 'flex', alignItems: 'center', gap: 8
+                }}
+              >
+                Annual Billing
+                <span style={{ fontSize: '10px', padding: '2px 8px', borderRadius: 99, background: '#10b981', color: '#000', fontWeight: 800 }}>
+                  SAVE 20%
+                </span>
+              </button>
+            </div>
+          </div>
+
+          {/* 3 Pricing Tier Cards (Figma Make Layout) */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24, alignItems: 'stretch' }}>
+            {/* Starter Tier */}
+            <div className="glass-card p-8 flex flex-col justify-between" style={{ borderRadius: 24, border: '1px solid var(--border-subtle)' }}>
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                  <h3 style={{ fontSize: 'var(--font-md)', fontWeight: 800, color: 'var(--text-primary)' }}>Starter</h3>
+                  <Badge variant="gray">Free Tier</Badge>
+                </div>
+                <p style={{ fontSize: 'var(--font-xs)', color: 'var(--text-muted)', marginBottom: 24, minHeight: 36 }}>
+                  Essential task delegation & sprint scheduling for small teams & projects.
+                </p>
+                <div style={{ marginBottom: 28 }}>
+                  <span style={{ fontSize: 'var(--font-2xl)', fontWeight: 900, color: 'var(--text-primary)' }}>$0</span>
+                  <span style={{ fontSize: 'var(--font-xs)', color: 'var(--text-muted)' }}> / free forever</span>
+                </div>
+
+                <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  {[
+                    'Up to 5 Team Members',
+                    '5-Factor Task Delegator (Basic)',
+                    'Auto Sprint Schedule Generator',
+                    'Standard Executive Dashboard',
+                    'IBM HR Dataset Integration',
+                    'Community Discord Support'
+                  ].map((feat, i) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 'var(--font-xs)', color: 'var(--text-secondary)' }}>
+                      <CheckCircle2 size={16} color="#10b981" />
+                      <span>{feat}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <Link href="/dashboard" className="btn-secondary" style={{ width: '100%', marginTop: 32, textDecoration: 'none', textAlign: 'center' }}>
+                Get Started Free
+              </Link>
+            </div>
+
+            {/* Pro Scale Tier (POPULAR / HIGHLIGHTED CARD) */}
+            <div className="glass-card p-8 flex flex-col justify-between" style={{
+              borderRadius: 24,
+              border: '2px solid var(--accent-indigo)',
+              boxShadow: '0 0 34px rgba(99,102,241,0.25)',
+              position: 'relative',
+              background: 'linear-gradient(180deg, rgba(99,102,241,0.08) 0%, rgba(12,12,16,0.95) 100%)'
+            }}>
+              {/* Floating Most Popular Badge */}
+              <div style={{
+                position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)',
+                background: 'linear-gradient(135deg, #6366f1 0%, #3b82f6 100%)',
+                color: '#fff', fontSize: 'var(--font-xs)', fontWeight: 800, padding: '4px 16px', borderRadius: 99,
+                letterSpacing: '0.06em', boxShadow: '0 4px 14px rgba(99,102,241,0.5)'
+              }}>
+                MOST POPULAR
+              </div>
+
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, marginTop: 4 }}>
+                  <h3 style={{ fontSize: 'var(--font-md)', fontWeight: 800, color: 'var(--text-primary)' }}>Pro Scale</h3>
+                  <Badge variant="indigo">Growth</Badge>
+                </div>
+                <p style={{ fontSize: 'var(--font-xs)', color: 'var(--text-muted)', marginBottom: 24, minHeight: 36 }}>
+                  Full autonomous AI decision engine with early burnout detection & WFH automation.
+                </p>
+                <div style={{ marginBottom: 28 }}>
+                  <span style={{ fontSize: 'var(--font-2xl)', fontWeight: 900, color: 'var(--text-primary)' }}>
+                    {isAnnual ? '$39' : '$49'}
+                  </span>
+                  <span style={{ fontSize: 'var(--font-xs)', color: 'var(--text-muted)' }}> / seat / month</span>
+                  {isAnnual && <p style={{ fontSize: '11px', color: '#10b981', marginTop: 4, fontWeight: 600 }}>Billed annually ($468/yr)</p>}
+                </div>
+
+                <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  {[
+                    'Unlimited Team Members',
+                    'Advanced 5-Factor Task Delegator with Live Weights',
+                    'Proactive Burnout Radar (14-Day Warning)',
+                    'Automated WFH Policy Decider',
+                    'Deadline Shield & Slippage Forecast',
+                    'Unlimited AI Copilot Chat Queries',
+                    'IBM HR Dataset ML Fine-tuning',
+                    '24/7 Priority Support & Slack Webhooks'
+                  ].map((feat, i) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 'var(--font-xs)', color: 'var(--text-primary)', fontWeight: 500 }}>
+                      <CheckCircle2 size={16} color="var(--accent-indigo)" />
+                      <span>{feat}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <Link href="/dashboard" className="btn-primary" style={{ width: '100%', marginTop: 32, textDecoration: 'none', padding: '14px', fontSize: 'var(--font-xs)' }}>
+                Start 14-Day Free Trial <ArrowRight size={16} />
+              </Link>
+            </div>
+
+            {/* Enterprise Tier */}
+            <div className="glass-card p-8 flex flex-col justify-between" style={{ borderRadius: 24, border: '1px solid var(--border-subtle)' }}>
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                  <h3 style={{ fontSize: 'var(--font-md)', fontWeight: 800, color: 'var(--text-primary)' }}>Enterprise</h3>
+                  <Badge variant="purple">Custom AI</Badge>
+                </div>
+                <p style={{ fontSize: 'var(--font-xs)', color: 'var(--text-muted)', marginBottom: 24, minHeight: 36 }}>
+                  Custom ML models fine-tuned on company Git history, SOC2 compliance & custom SLA.
+                </p>
+                <div style={{ marginBottom: 28 }}>
+                  <span style={{ fontSize: 'var(--font-2xl)', fontWeight: 900, color: 'var(--text-primary)' }}>
+                    {isAnnual ? '$159' : '$199'}
+                  </span>
+                  <span style={{ fontSize: 'var(--font-xs)', color: 'var(--text-muted)' }}> / seat / month</span>
+                  <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: 4 }}>Custom volume discounts available</p>
+                </div>
+
+                <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  {[
+                    'Everything in Pro Scale',
+                    'Custom Fine-Tuned AI Models on Git History',
+                    'Dedicated Customer Success Engineer',
+                    'SSO / SAML 2.0 & Custom RBAC Roles',
+                    'Custom WFH & Compliance Policy Rules',
+                    '99.99% Guaranteed Uptime SLA',
+                    'On-Premise / Private Cloud Deployment'
+                  ].map((feat, i) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 'var(--font-xs)', color: 'var(--text-secondary)' }}>
+                      <CheckCircle2 size={16} color="#8b5cf6" />
+                      <span>{feat}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <a href="mailto:enterprise@orka.ai" className="btn-secondary" style={{ width: '100%', marginTop: 32, textDecoration: 'none', textAlign: 'center' }}>
+                Contact Enterprise Sales
+              </a>
+            </div>
+          </div>
+
+          {/* Detailed Feature Comparison Table */}
+          <div style={{ marginTop: 64 }}>
+            <h3 style={{ fontSize: 'var(--font-lg)', fontWeight: 800, color: 'var(--text-primary)', textAlign: 'center', marginBottom: 24 }}>
+              Feature Breakdown Comparison
+            </h3>
+
+            <div className="glass-card" style={{ overflowX: 'auto', borderRadius: 16 }}>
+              <table className="orka-table" style={{ width: '100%' }}>
+                <thead>
+                  <tr>
+                    <th style={{ width: '40%' }}>Core Capabilities</th>
+                    <th style={{ width: '20%', textAlign: 'center' }}>Starter ($0)</th>
+                    <th style={{ width: '20%', textAlign: 'center', color: 'var(--accent-indigo)' }}>Pro Scale ($39)</th>
+                    <th style={{ width: '20%', textAlign: 'center' }}>Enterprise ($159)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { f: '5-Factor Task Delegator', s: 'Basic', p: 'Advanced Live Weights', e: 'Custom ML Models' },
+                    { f: 'Team Size Limit', s: '5 Members', p: 'Unlimited', e: 'Unlimited' },
+                    { f: 'Burnout Radar Interception', s: '—', p: '14-Day Warning', e: 'Real-time Telemetry' },
+                    { f: 'WFH Decider Engine', s: 'Manual Rule', p: 'Automated AI', e: 'Custom Policy Rules' },
+                    { f: 'Deadline Risk Shield', s: 'Basic Alerts', p: 'Full Velocity Forecast', e: 'Predictive Slippage SLA' },
+                    { f: 'AI Copilot Assistant', s: '10 Queries / mo', p: 'Unlimited Queries', e: 'Unlimited + Custom KB' },
+                    { f: 'IBM HR Dataset Sync', s: 'Included', p: 'Included', p2: 'Custom HRIS API' },
+                    { f: 'Support SLA', s: 'Community', p: '24/7 Priority', e: 'Dedicated Success Mgr' },
+                  ].map((row, idx) => (
+                    <tr key={idx}>
+                      <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{row.f}</td>
+                      <td style={{ textAlign: 'center', color: 'var(--text-muted)' }}>{row.s}</td>
+                      <td style={{ textAlign: 'center', fontWeight: 700, color: 'var(--accent-indigo)' }}>{row.p}</td>
+                      <td style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>{row.e || row.p2 || row.p}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 7. FAQ Section ─────────────────────────────────────────────────── */}
       <section style={{ padding: 'var(--space-6) var(--space-4)', maxWidth: 960, margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: 34 }}>
           <Badge variant="cyan" style={{ marginBottom: 12 }}>Knowledge</Badge>
@@ -494,7 +816,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── 6. Footer ───────────────────────────────────────────────────────── */}
+      {/* ── 8. Footer ───────────────────────────────────────────────────────── */}
       <footer style={{ padding: 'var(--space-5) var(--space-4)', borderTop: '1px solid var(--border-subtle)', background: 'var(--bg-sidebar)' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 'var(--font-xs)', color: 'var(--text-muted)', flexWrap: 'wrap', gap: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
