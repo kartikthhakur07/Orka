@@ -20,8 +20,17 @@ export default function LandingPage() {
       {/* Sticky Header Navbar */}
       <Navbar />
 
-      {/* ── 1. Hero Section (Split 50/50 Layout matching exact screenshot) ──────── */}
-      <section style={{ position: 'relative', padding: 'clamp(40px, 6vw, 80px) 0', background: 'var(--bg-canvas)' }}>
+      {/* ── 1. Hero Section (Full-Bleed Cover Photo Backdrop Layout) ──────── */}
+      <section style={{
+        position: 'relative',
+        minHeight: 'calc(100vh - 64px)',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        padding: 'clamp(56px, 7vw, 100px) 0',
+        background: `linear-gradient(180deg, rgba(242, 240, 235, 0.78) 0%, rgba(242, 240, 235, 0.88) 100%), url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=2400&q=80') center/cover no-repeat`,
+        boxShadow: 'inset 0 -10px 20px rgba(0, 98, 65, 0.05)'
+      }}>
         <div className="container">
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 'clamp(32px, 5vw, 64px)', alignItems: 'center' }}>
             {/* Left Hero Column */}

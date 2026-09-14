@@ -25,6 +25,7 @@ export function Navbar() {
   const handleSignOut = () => {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('orka_user')
+      window.dispatchEvent(new Event('orka_auth_change'))
     }
     setUser(null)
   }

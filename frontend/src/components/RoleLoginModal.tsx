@@ -80,6 +80,7 @@ export function RoleLoginModal({ isOpen, onClose, onLoginSuccess }: RoleLoginMod
 
       if (typeof window !== 'undefined') {
         localStorage.setItem('orka_user', JSON.stringify(userObj))
+        window.dispatchEvent(new Event('orka_auth_change'))
       }
 
       if (onLoginSuccess) {

@@ -1,10 +1,39 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Badge } from '@/components/Badge'
 import { ArrowRight } from 'lucide-react'
 
 export function AlgorithmSection() {
+  const [assigneeName, setAssigneeName] = useState('Priya Sharma')
+
+  useEffect(() => {
+    const updateAssignee = () => {
+      if (typeof window !== 'undefined') {
+        const stored = localStorage.getItem('orka_user')
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored)
+            if (parsed?.name) {
+              setAssigneeName(parsed.name)
+              return
+            }
+          } catch {}
+        }
+        setAssigneeName('Priya Sharma')
+      }
+    }
+
+    updateAssignee()
+    window.addEventListener('orka_auth_change', updateAssignee)
+    window.addEventListener('storage', updateAssignee)
+    return () => {
+      window.removeEventListener('orka_auth_change', updateAssignee)
+      window.removeEventListener('storage', updateAssignee)
+    }
+  }, [])
+
   const steps = [
     'Input Signals',
     'Skill Match',
@@ -17,7 +46,7 @@ export function AlgorithmSection() {
 
   return (
     <section id="algorithm" style={{ padding: 'var(--space-6) var(--space-5)', background: '#ffffff', borderTop: '1px solid var(--border-subtle)', borderBottom: '1px solid var(--border-subtle)' }}>
-      <div style={{ maxWidth: 1280, margin: '0 auto' }}>
+      <div style={{ maxWidth: 1140, margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: 40 }}>
           <Badge variant="green" style={{ marginBottom: 12 }}>Decision Pipeline</Badge>
           <h2 style={{ fontSize: 'var(--font-xl)', fontWeight: 700, color: '#006241' }}>
@@ -53,51 +82,60 @@ export function AlgorithmSection() {
           ))}
         </div>
 
-        {/* Example Real Data Card Box */}
-        <div className="glass-card p-8 golden-grid" style={{ alignItems: 'center', borderRadius: 16 }}>
-          {/* Metrics Column */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <h3 style={{ fontSize: 'var(--font-md)', fontWeight: 700, color: '#006241' }}>
-              Live Model Telemetry Weights
-            </h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
-              <div style={{ padding: 14, background: 'var(--bg-canvas)', borderRadius: 12, border: '1px solid var(--border-card)' }}>
-                <span style={{ fontSize: '11px', color: 'var(--text-black-soft)', fontWeight: 600 }}>Skill Match</span>
-                <p style={{ fontSize: 'var(--font-lg)', fontWeight: 800, color: '#00754A' }}>94%</p>
-              </div>
-              <div style={{ padding: 14, background: 'var(--bg-canvas)', borderRadius: 12, border: '1px solid var(--border-card)' }}>
-                <span style={{ fontSize: '11px', color: 'var(--text-black-soft)', fontWeight: 600 }}>Workload Analysis</span>
-                <p style={{ fontSize: 'var(--font-lg)', fontWeight: 800, color: '#1d4ed8' }}>72%</p>
-              </div>
-              <div style={{ padding: 14, background: 'var(--bg-canvas)', borderRadius: 12, border: '1px solid var(--border-card)' }}>
-                <span style={{ fontSize: '11px', color: 'var(--text-black-soft)', fontWeight: 600 }}>Availability</span>
-                <p style={{ fontSize: 'var(--font-lg)', fontWeight: 800, color: '#6d28d9' }}>89%</p>
-              </div>
-              <div style={{ padding: 14, background: 'var(--bg-canvas)', borderRadius: 12, border: '1px solid var(--border-card)' }}>
-                <span style={{ fontSize: '11px', color: 'var(--text-black-soft)', fontWeight: 600 }}>Burnout Risk</span>
-                <p style={{ fontSize: 'var(--font-lg)', fontWeight: 800, color: '#00754A' }}>Low</p>
-              </div>
-            </div>
-          </div>
-
-          {/* AI Confidence Box */}
+        {/* Example Real Data Card Box (Clean Fit without side overflow) */}
+        <div className="glass-card" style={{ padding: 28, borderRadius: 16, width: '100%', boxSizing: 'border-box' }}>
           <div style={{
-            background: 'var(--house-green)', color: '#ffffff', padding: 28,
-            borderRadius: 16, textAlign: 'center', boxShadow: '0 8px 24px rgba(0,0,0,0.15)'
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+            gap: 28,
+            alignItems: 'center',
+            width: '100%'
           }}>
-            <span className="badge badge-green" style={{ marginBottom: 12 }}>AI Confidence 96%</span>
-            <p style={{ fontSize: 'var(--font-xs)', color: 'rgba(255,255,255,0.7)', fontWeight: 700, textTransform: 'uppercase' }}>
-              Recommended Assignee
-            </p>
-            <div style={{ fontSize: 'var(--font-2xl)', fontWeight: 800, color: '#d4e9e2', margin: '6px 0' }}>
-              Priya Sharma
+            {/* Metrics Column */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <h3 style={{ fontSize: 'var(--font-md)', fontWeight: 700, color: '#006241' }}>
+                Live Model Telemetry Weights
+              </h3>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 12 }}>
+                <div style={{ padding: 14, background: 'var(--bg-canvas)', borderRadius: 12, border: '1px solid var(--border-card)' }}>
+                  <span style={{ fontSize: '11px', color: 'var(--text-black-soft)', fontWeight: 600 }}>Skill Match</span>
+                  <p style={{ fontSize: 'var(--font-lg)', fontWeight: 800, color: '#00754A' }}>94%</p>
+                </div>
+                <div style={{ padding: 14, background: 'var(--bg-canvas)', borderRadius: 12, border: '1px solid var(--border-card)' }}>
+                  <span style={{ fontSize: '11px', color: 'var(--text-black-soft)', fontWeight: 600 }}>Workload Analysis</span>
+                  <p style={{ fontSize: 'var(--font-lg)', fontWeight: 800, color: '#1d4ed8' }}>72%</p>
+                </div>
+                <div style={{ padding: 14, background: 'var(--bg-canvas)', borderRadius: 12, border: '1px solid var(--border-card)' }}>
+                  <span style={{ fontSize: '11px', color: 'var(--text-black-soft)', fontWeight: 600 }}>Availability</span>
+                  <p style={{ fontSize: 'var(--font-lg)', fontWeight: 800, color: '#6d28d9' }}>89%</p>
+                </div>
+                <div style={{ padding: 14, background: 'var(--bg-canvas)', borderRadius: 12, border: '1px solid var(--border-card)' }}>
+                  <span style={{ fontSize: '11px', color: 'var(--text-black-soft)', fontWeight: 600 }}>Burnout Risk</span>
+                  <p style={{ fontSize: 'var(--font-lg)', fontWeight: 800, color: '#00754A' }}>Low</p>
+                </div>
+              </div>
             </div>
-            <p style={{ fontSize: 'var(--font-xs)', color: 'rgba(255,255,255,0.7)', marginBottom: 18 }}>
-              Optimal fit for Task #ORK-2847 (3 story points)
-            </p>
-            <Link href="/delegator" className="btn-primary" style={{ width: '100%', textDecoration: 'none', background: '#00754A', padding: '12px' }}>
-              Test Live Delegator Engine
-            </Link>
+
+            {/* AI Confidence Box */}
+            <div style={{
+              background: 'var(--house-green)', color: '#ffffff', padding: '24px 28px',
+              borderRadius: 16, textAlign: 'center', boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+              width: '100%', boxSizing: 'border-box'
+            }}>
+              <span className="badge badge-green" style={{ marginBottom: 12 }}>AI Confidence 96%</span>
+              <p style={{ fontSize: 'var(--font-xs)', color: 'rgba(255,255,255,0.7)', fontWeight: 700, textTransform: 'uppercase' }}>
+                RECOMMENDED ASSIGNEE
+              </p>
+              <div style={{ fontSize: 'clamp(24px, 3.5vw, 36px)', fontWeight: 800, color: '#d4e9e2', margin: '6px 0', lineHeight: 1.1, wordBreak: 'break-word' }}>
+                {assigneeName}
+              </div>
+              <p style={{ fontSize: 'var(--font-xs)', color: 'rgba(255,255,255,0.7)', marginBottom: 18 }}>
+                Optimal fit for Task #ORK-2847 (3 story points)
+              </p>
+              <Link href="/delegator" className="btn-primary" style={{ width: '100%', textDecoration: 'none', background: '#00754A', padding: '12px', justifyContent: 'center' }}>
+                Test Live Delegator Engine
+              </Link>
+            </div>
           </div>
         </div>
       </div>
