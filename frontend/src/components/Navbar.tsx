@@ -73,7 +73,7 @@ export function Navbar() {
               O
             </div>
             <span style={{ fontSize: '1.4rem', fontWeight: 800, letterSpacing: '-0.01em', color: '#006241' }}>
-              ORKA <span style={{ color: '#00754A' }}>v2</span>
+              <span style={{ color: '#00754A' }}>v2</span>
             </span>
           </Link>
 

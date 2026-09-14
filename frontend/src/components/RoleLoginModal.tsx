@@ -192,7 +192,7 @@ export function RoleLoginModal({ isOpen, onClose, onLoginSuccess }: RoleLoginMod
                 O
               </div>
               <h2 style={{ fontSize: 'var(--font-md)', fontWeight: 800, color: 'var(--text-black)', marginBottom: 4 }}>
-                Sign in to ORKA v2
+                Sign in to v2
               </h2>
               <p style={{ fontSize: 'var(--font-xs)', color: 'var(--text-black-soft)' }}>
                 Select a pre-filled role to sign in instantly

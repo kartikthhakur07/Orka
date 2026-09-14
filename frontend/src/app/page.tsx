@@ -52,7 +52,7 @@ export default function LandingPage() {
                 color: 'var(--text-black)',
                 marginBottom: 20,
               }}>
-                The AI Decision Engine for <br />
+                AI Decision Engine for <br />
                 <span style={{ color: '#006241' }}>
                   Modern Engineering Teams
                 </span>
@@ -163,7 +163,7 @@ export default function LandingPage() {
                   <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#00754A' }} />
                 </div>
                 <div style={{ fontSize: 'var(--font-xs)', color: 'var(--text-black-soft)', fontWeight: 700, letterSpacing: '-0.01em' }}>
-                  ORKA CONTROL CENTER · SPRINT 47 OVERVIEW
+                  CONTROL CENTER · SPRINT 47 OVERVIEW
                 </div>
                 <Badge variant="green">Sprint On Track</Badge>
               </div>
@@ -477,7 +477,7 @@ export default function LandingPage() {
         <div className="container" style={{ maxWidth: 1140, display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 'var(--font-xs)', color: 'rgba(255,255,255,0.7)', flexWrap: 'wrap', gap: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <div style={{ width: 24, height: 24, borderRadius: '50%', background: '#ffffff', color: '#006241', fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>O</div>
-            <span style={{ fontWeight: 800, color: '#ffffff' }}>ORKA v2</span>
+            <span style={{ fontWeight: 800, color: '#ffffff' }}>v2</span>
             <span>· Starbucks-Inspired Retail Flagship UI</span>
           </div>
 
