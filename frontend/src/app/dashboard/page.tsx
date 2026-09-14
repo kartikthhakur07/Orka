@@ -40,7 +40,7 @@ export default function DashboardPage() {
       />
 
       {/* Main Dashboard Container (Golden Ratio Spacing) */}
-      <div style={{ padding: 'var(--space-5)', maxWidth: 1440, margin: '0 auto' }}>
+      <div className="page-container">
         {/* Dashboard Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 32, flexWrap: 'wrap', gap: 16 }}>
           <div>
@@ -63,7 +63,7 @@ export default function DashboardPage() {
         </div>
 
         {/* 4 Stat Cards */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 32 }}>
+        <div className="stats-grid" style={{ marginBottom: 32 }}>
           <div className="glass-card p-5" style={{ borderRadius: 12 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
               <span style={{ fontSize: 'var(--font-xs)', color: 'var(--text-black-soft)', fontWeight: 600 }}>Active Tasks</span>

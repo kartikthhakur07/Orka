@@ -9,12 +9,12 @@ export function PricingSection() {
   const [isAnnual, setIsAnnual] = useState(true)
 
   return (
-    <section id="pricing" style={{ padding: 'var(--space-6) var(--space-5)', background: '#ffffff', borderTop: '1px solid var(--border-subtle)', borderBottom: '1px solid var(--border-subtle)' }}>
-      <div style={{ maxWidth: 1280, margin: '0 auto' }}>
+    <section id="pricing" style={{ padding: 'clamp(48px, 7vw, 96px) 0', background: '#ffffff', borderTop: '1px solid var(--border-subtle)', borderBottom: '1px solid var(--border-subtle)' }}>
+      <div className="container">
         {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: 44 }}>
+        <div className="section-header" style={{ marginBottom: 44 }}>
           <Badge variant="green" style={{ marginBottom: 12 }}>Pricing</Badge>
-          <h2 style={{ fontSize: 'var(--font-xl)', fontWeight: 700, color: '#006241' }}>
+          <h2 style={{ fontSize: 'clamp(24px, 3.5vw, 36px)', fontWeight: 700, color: '#006241' }}>
             Plans Built to Scale with Your Engineering
           </h2>
           <p style={{ color: 'var(--text-black-soft)', marginTop: 8, fontSize: 'var(--font-base)', maxWidth: 640, margin: '8px auto 0' }}>
@@ -22,7 +22,7 @@ export function PricingSection() {
           </p>
 
           {/* Toggle Switch */}
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 12, marginTop: 24, background: 'var(--bg-canvas)', padding: '6px 10px', borderRadius: 'var(--radius-pill)', border: '1px solid var(--border-card)' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 12, marginTop: 24, background: 'var(--bg-canvas)', padding: '6px 10px', borderRadius: 'var(--radius-pill)', border: '1px solid var(--border-card)', maxWidth: '100%' }}>
             <button
               onClick={() => setIsAnnual(false)}
               style={{
@@ -53,9 +53,9 @@ export function PricingSection() {
         </div>
 
         {/* 3 Pricing Cards */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24, alignItems: 'stretch' }}>
+        <div className="pricing-grid">
           {/* FREE Plan */}
-          <div className="glass-card p-8 flex flex-col justify-between" style={{ borderRadius: 12, border: '1px solid var(--border-subtle)' }}>
+          <div className="glass-card pricing-card p-8 flex flex-col justify-between" style={{ borderRadius: 12, border: '1px solid var(--border-subtle)' }}>
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                 <h3 style={{ fontSize: 'var(--font-md)', fontWeight: 700, color: '#006241' }}>FREE</h3>
@@ -91,7 +91,7 @@ export function PricingSection() {
           </div>
 
           {/* PRO Plan (HIGHLIGHTED RECOMMENDED PLAN) */}
-          <div className="glass-card p-8 flex flex-col justify-between" style={{
+          <div className="glass-card pricing-card p-8 flex flex-col justify-between" style={{
             borderRadius: 12,
             border: '2px solid #00754A',
             boxShadow: 'var(--shadow-hover)',
@@ -102,7 +102,7 @@ export function PricingSection() {
             <div style={{
               position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)',
               background: '#ffffff', color: '#006241', fontSize: 'var(--font-xs)', fontWeight: 800, padding: '4px 16px', borderRadius: 'var(--radius-pill)',
-              border: '1px solid rgba(0,98,65,0.2)', boxShadow: '0 2px 6px rgba(0,0,0,0.06)'
+              border: '1px solid rgba(0,98,65,0.2)', boxShadow: '0 2px 6px rgba(0,0,0,0.06)', whiteSpace: 'nowrap'
             }}>
               RECOMMENDED
             </div>
@@ -146,7 +146,7 @@ export function PricingSection() {
           </div>
 
           {/* ENTERPRISE Plan */}
-          <div className="glass-card p-8 flex flex-col justify-between" style={{ borderRadius: 12, border: '1px solid var(--border-subtle)' }}>
+          <div className="glass-card pricing-card p-8 flex flex-col justify-between" style={{ borderRadius: 12, border: '1px solid var(--border-subtle)' }}>
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                 <h3 style={{ fontSize: 'var(--font-md)', fontWeight: 700, color: '#006241' }}>ENTERPRISE</h3>

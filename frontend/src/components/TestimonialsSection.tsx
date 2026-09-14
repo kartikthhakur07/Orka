@@ -28,45 +28,47 @@ export function TestimonialsSection() {
   ]
 
   return (
-    <section style={{ padding: 'var(--space-6) var(--space-4)', maxWidth: 1280, margin: '0 auto' }}>
-      <div style={{ textAlign: 'center', marginBottom: 44 }}>
-        <Badge variant="indigo" style={{ marginBottom: 12 }}>Testimonials</Badge>
-        <h2 style={{ fontSize: 'var(--font-xl)', fontWeight: 800, color: '#0f172a' }}>
-          Loved by Engineering Leaders Worldwide
-        </h2>
-        <p style={{ color: '#64748b', marginTop: 8, fontSize: 'var(--font-base)', maxWidth: 600, margin: '8px auto 0' }}>
-          See how top technology companies scale velocity and prevent burnout with ORKA v2.
-        </p>
-      </div>
+    <section style={{ padding: 'clamp(48px, 7vw, 96px) 0', background: 'var(--bg-canvas)' }}>
+      <div className="container">
+        <div className="section-header" style={{ marginBottom: 44 }}>
+          <Badge variant="indigo" style={{ marginBottom: 12 }}>Testimonials</Badge>
+          <h2 style={{ fontSize: 'clamp(24px, 3.5vw, 36px)', fontWeight: 800, color: '#0f172a' }}>
+            Loved by Engineering Leaders Worldwide
+          </h2>
+          <p style={{ color: '#64748b', marginTop: 8, fontSize: 'var(--font-base)', maxWidth: 600, margin: '8px auto 0' }}>
+            See how top technology companies scale velocity and prevent burnout with ORKA v2.
+          </p>
+        </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}>
-        {testimonials.map((t, idx) => (
-          <div
-            key={idx}
-            className="glass-card p-6 flex flex-col justify-between"
-            style={{ borderRadius: 20, border: '1px solid #e2e8f0' }}
-          >
-            <p style={{ fontSize: 'var(--font-xs)', color: '#334155', lineHeight: 1.6, fontStyle: 'italic', marginBottom: 24 }}>
-              {t.quote}
-            </p>
+        <div className="testimonials-grid">
+          {testimonials.map((t, idx) => (
+            <div
+              key={idx}
+              className="glass-card testimonial-card p-6 flex flex-col justify-between"
+              style={{ borderRadius: 20, border: '1px solid #e2e8f0' }}
+            >
+              <p style={{ fontSize: 'var(--font-xs)', color: '#334155', lineHeight: 1.6, fontStyle: 'italic', marginBottom: 24 }}>
+                {t.quote}
+              </p>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <div style={{
-                width: 40, height: 40, borderRadius: '50%',
-                background: `${t.color}15`, color: t.color,
-                fontWeight: 800, fontSize: 'var(--font-xs)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                border: `1px solid ${t.color}30`
-              }}>
-                {t.initials}
-              </div>
-              <div>
-                <p style={{ fontSize: 'var(--font-xs)', fontWeight: 800, color: '#0f172a' }}>{t.name}</p>
-                <p style={{ fontSize: '11px', color: '#64748b' }}>{t.role}</p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{
+                  width: 40, height: 40, borderRadius: '50%',
+                  background: `${t.color}15`, color: t.color,
+                  fontWeight: 800, fontSize: 'var(--font-xs)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  border: `1px solid ${t.color}30`
+                }}>
+                  {t.initials}
+                </div>
+                <div>
+                  <p style={{ fontSize: 'var(--font-xs)', fontWeight: 800, color: '#0f172a' }}>{t.name}</p>
+                  <p style={{ fontSize: '11px', color: '#64748b' }}>{t.role}</p>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </section>
   )
