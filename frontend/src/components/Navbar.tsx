@@ -4,6 +4,15 @@ import Link from 'next/link'
 import { ArrowRight, ExternalLink } from 'lucide-react'
 
 export function Navbar() {
+  const navTabs = [
+    { label: 'Features', href: '#features', external: false },
+    { label: 'AI Engine', href: '#algorithm', external: false },
+    { label: 'Pricing', href: '#pricing', external: false },
+    { label: 'Delegator', href: '/delegator', isPage: true },
+    { label: 'Burnout Radar', href: '/burnout', isPage: true },
+    { label: 'API Docs', href: 'https://orkapi.onrender.com/docs', external: true },
+  ]
+
   return (
     <header
       style={{
@@ -13,7 +22,7 @@ export function Navbar() {
         background: '#ffffff',
         borderBottom: '1px solid var(--border-subtle)',
         padding: '12px 0',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.06)'
+        boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
       }}
     >
       <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
@@ -21,8 +30,8 @@ export function Navbar() {
         <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 10 }}>
           <div
             style={{
-              width: 34,
-              height: 34,
+              width: 36,
+              height: 36,
               borderRadius: '50%',
               background: '#006241',
               color: '#ffffff',
@@ -41,25 +50,65 @@ export function Navbar() {
           </span>
         </Link>
 
-        {/* Navigation Links */}
-        <nav className="hidden md:flex" style={{ alignItems: 'center', gap: 32, fontSize: 'var(--font-sm)', fontWeight: 600 }}>
-          <a href="#features" style={{ color: 'rgba(0,0,0,0.87)', textDecoration: 'none', transition: 'color 0.2s ease' }}>
-            Features
-          </a>
-          <a href="#algorithm" style={{ color: 'rgba(0,0,0,0.87)', textDecoration: 'none', transition: 'color 0.2s ease' }}>
-            Algorithm
-          </a>
-          <a href="#pricing" style={{ color: 'rgba(0,0,0,0.87)', textDecoration: 'none', transition: 'color 0.2s ease' }}>
-            Pricing
-          </a>
-          <a
-            href="https://orkapi.onrender.com/docs"
-            target="_blank"
-            rel="noreferrer"
-            style={{ color: 'rgba(0,0,0,0.87)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 4 }}
-          >
-            API Docs <ExternalLink size={12} />
-          </a>
+        {/* Navigation Tabs Bar */}
+        <nav style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+          {navTabs.map((tab, idx) => {
+            const styleProps = {
+              padding: '6px 14px',
+              borderRadius: 'var(--radius-pill)',
+              color: 'var(--text-black)',
+              textDecoration: 'none',
+              fontSize: 'var(--font-xs)',
+              fontWeight: 600,
+              letterSpacing: '-0.01em',
+              transition: 'all 0.2s ease',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 4,
+              background: 'transparent',
+            }
+
+            if (tab.isPage) {
+              return (
+                <Link
+                  key={idx}
+                  href={tab.href}
+                  style={styleProps}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.background = 'var(--green-light)'
+                    e.currentTarget.style.color = '#006241'
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.background = 'transparent'
+                    e.currentTarget.style.color = 'var(--text-black)'
+                  }}
+                >
+                  {tab.label}
+                </Link>
+              )
+            }
+
+            return (
+              <a
+                key={idx}
+                href={tab.href}
+                target={tab.external ? '_blank' : undefined}
+                rel={tab.external ? 'noreferrer' : undefined}
+                style={styleProps}
+                onMouseEnter={e => {
+                  e.currentTarget.style.background = 'var(--green-light)'
+                  e.currentTarget.style.color = '#006241'
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.background = 'transparent'
+                  e.currentTarget.style.color = 'var(--text-black)'
+                }}
+              >
+                {tab.label}
+                {tab.external && <ExternalLink size={12} style={{ color: '#00754A' }} />}
+              </a>
+            )
+          })}
         </nav>
 
         {/* Actions (50px full-pill buttons) */}
@@ -68,7 +117,7 @@ export function Navbar() {
             href="https://github.com/kartikthhakur07/Orka"
             target="_blank"
             rel="noreferrer"
-            className="btn-secondary hidden sm:inline-flex"
+            className="btn-secondary"
             style={{ fontSize: 'var(--font-xs)', padding: '8px 20px' }}
           >
             GitHub Repo
@@ -81,3 +130,4 @@ export function Navbar() {
     </header>
   )
 }
+
