@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import Sidebar from '@/components/Sidebar'
 import TopBar from '@/components/TopBar'
@@ -35,16 +35,6 @@ import {
   Plus
 } from 'lucide-react'
 
-// Burndown Mock Trend
-const BURNDOWN_DATA = [
-  { day: 'Day 1', ideal: 45, actual: 45 },
-  { day: 'Day 2', ideal: 36, actual: 40 },
-  { day: 'Day 3', ideal: 27, actual: 29 },
-  { day: 'Day 4', ideal: 18, actual: 16 },
-  { day: 'Day 5', ideal: 9,  actual: 8 },
-  { day: 'Day 6', ideal: 0,  actual: 2 },
-]
-
 import { useSidebar } from '@/context/SidebarContext'
 
 export default function DashboardPage() {
@@ -73,6 +63,21 @@ export default function DashboardPage() {
     }
     loadDashboard()
   }, [])
+
+  const burndownData = useMemo(() => {
+    const totalPoints = 48
+    const progress = data?.sprint_progress ?? 65
+    const remaining = Math.max(0, Math.round(totalPoints * (1 - progress / 100)))
+
+    return [
+      { day: 'Day 1', ideal: 48, actual: 48 },
+      { day: 'Day 2', ideal: 38, actual: Math.round(48 - (48 - remaining) * 0.25) },
+      { day: 'Day 3', ideal: 28, actual: Math.round(48 - (48 - remaining) * 0.55) },
+      { day: 'Day 4', ideal: 19, actual: Math.round(48 - (48 - remaining) * 0.8) },
+      { day: 'Day 5', ideal: 10, actual: remaining },
+      { day: 'Day 6', ideal: 0, actual: Math.max(0, remaining - 2) },
+    ]
+  }, [data?.sprint_progress])
 
   return (
     <div className="app-layout">
@@ -192,7 +197,7 @@ export default function DashboardPage() {
 
                   <div style={{ width: '100%', height: 260 }}>
                     <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart data={BURNDOWN_DATA}>
+                      <AreaChart data={burndownData}>
                         <defs>
                           <linearGradient id="actualColor" x1="0" y1="0" x2="0" y2="1">
                             <stop offset="5%" stopColor="#f7a501" stopOpacity={0.4} />
