@@ -905,6 +905,7 @@ def assign_task(request: TaskAssignRequest, db: Session = Depends(get_db)):
 # ---------------------------------------------------------------------------
 
 @app.get("/api/tasks")
+@app.get("/tasks")
 def get_tasks(
     status: Optional[str] = None,
     priority: Optional[str] = None,
@@ -949,6 +950,7 @@ def get_tasks(
 
 
 @app.post("/api/tasks")
+@app.post("/tasks")
 def create_task(req: TaskCreateRequest, db: Session = Depends(get_db)):
     assigned_name = req.assigned_to
     score = 80.0
@@ -994,6 +996,7 @@ def create_task(req: TaskCreateRequest, db: Session = Depends(get_db)):
 
 
 @app.patch("/api/tasks/{task_id}")
+@app.patch("/tasks/{task_id}")
 def update_task(task_id: int, req: TaskUpdateRequest, db: Session = Depends(get_db)):
     t = db.query(Task).filter(Task.id == task_id).first()
     if not t:
@@ -1023,6 +1026,7 @@ def update_task(task_id: int, req: TaskUpdateRequest, db: Session = Depends(get_
 
 
 @app.delete("/api/tasks/{task_id}")
+@app.delete("/tasks/{task_id}")
 def delete_task(task_id: int, db: Session = Depends(get_db)):
     t = db.query(Task).filter(Task.id == task_id).first()
     if not t:

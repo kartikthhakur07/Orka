@@ -52,8 +52,10 @@ export default function DashboardPage() {
           getTasks({ status: 'all' }).catch(() => null)
         ])
         setData(dashRes)
-        if (tasksRes && tasksRes.tasks) {
+        if (tasksRes && tasksRes.tasks && tasksRes.tasks.length > 0) {
           setRecentTasks(tasksRes.tasks.slice(0, 5))
+        } else if (dashRes && dashRes.recent_assignments) {
+          setRecentTasks(dashRes.recent_assignments)
         }
       } catch (err) {
         console.error('Failed to load dashboard:', err)

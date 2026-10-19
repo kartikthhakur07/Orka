@@ -4,10 +4,16 @@ async function fetchWithRetry(url: string, options: RequestInit = {}, retries = 
   try {
     const res = await fetch(url, options)
     if (!res.ok) {
-      throw new Error(`HTTP ${res.status}: ${res.statusText}`)
+      const err = new Error(`HTTP ${res.status}: ${res.statusText}`) as any
+      err.status = res.status
+      throw err
     }
     return await res.json()
-  } catch (err) {
+  } catch (err: any) {
+    // Do not retry 4xx client errors (like 404 Not Found)
+    if (err.status && err.status >= 400 && err.status < 500) {
+      throw err
+    }
     if (retries > 0) {
       await new Promise(r => setTimeout(r, delayMs))
       return fetchWithRetry(url, options, retries - 1, delayMs * 1.5)
