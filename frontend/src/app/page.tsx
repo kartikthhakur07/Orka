@@ -1,464 +1,956 @@
 'use client'
 
+import { useState, useRef } from 'react'
 import Link from 'next/link'
 import { Navbar } from '@/components/Navbar'
-import { Badge } from '@/components/Badge'
-import { AlgorithmSection } from '@/components/AlgorithmSection'
-import { TestimonialsSection } from '@/components/TestimonialsSection'
-import { PricingSection } from '@/components/PricingSection'
+import LightRays from './LightRays'
+import TechText from './TechText'
+import Carousel from './Carousel'
+import PixelCard from './PixelCard'
+import Folder from './Folder'
 import {
-  Brain, Flame, Home, Shield, CalendarDays, Layers,
-  ArrowRight, Play, ChevronRight, HelpCircle, Plus
+  Brain, Flame, Home, Shield, CalendarDays,
+  ArrowRight, Plus, CheckCircle2, Zap, Target,
+  ShieldCheck, Lock, Sparkles, HelpCircle, Check,
+  MapPin, Activity, Search, Clock, ChevronLeft, ChevronRight, Users
 } from 'lucide-react'
-import { useState } from 'react'
 
 export default function LandingPage() {
+  // FAQ Accordion State
   const [openFaq, setOpenFaq] = useState<number | null>(0)
 
+  // Pricing Billing Cycle Toggle (Monthly vs Annual)
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('annual')
+
+  const workflowCards = [
+    {
+      title: 'Connect Your Stack',
+      description: 'Integrates with GitHub, Jira & Linear in seconds. Automatically ingests issue backlogs, velocity, and skill tags without invasive trackers.',
+      tag: '01 • INGESTION',
+      badge: '⚡ 10s API Setup',
+      accentColor: '#0284c7',
+      bgColor: '#ffffff',
+      features: [
+        'GitHub PR & Commit Velocity',
+        'Jira & Linear Sprint Backlogs',
+        'Zero-Surveillance Privacy'
+      ],
+      footer: 'Continuous Headroom Sync'
+    },
+    {
+      title: 'Multi-Factor Evaluation',
+      description: 'Calculates mathematically optimal assignment fits by balancing engineer skill vectors, active queue headroom, and safety reserves.',
+      tag: '02 • ALGORITHM',
+      badge: '🎯 5-Factor Fit',
+      accentColor: '#ea580c',
+      bgColor: '#ffffff',
+      features: [
+        'Domain & Language Vectors',
+        'Burnout Safety Reserves',
+        'Bias-Free Delegation'
+      ],
+      footer: 'Mathematically Fair Fit'
+    },
+    {
+      title: 'Sustain Velocity & Health',
+      description: 'Flags upcoming burnout risk 14 days in advance from meeting density and overtime deficits before delivery velocity drops.',
+      tag: '03 • PROTECTION',
+      badge: '🛡️ 14-Day Radar',
+      accentColor: '#059669',
+      bgColor: '#ffffff',
+      features: [
+        'Early Overload Signal Radar',
+        'Focus-Block Depletion Alerts',
+        'Hybrid Sync Preservation'
+      ],
+      footer: 'High-Impact Squad Health'
+    }
+  ];
+
+  const aboutOrkaCards = [
+    {
+      title: 'Open-Source & Auditable',
+      description: 'Transparent formulas licensed under Apache 2.0. Inspect every algorithm weight and self-host on Docker with your own database.',
+      tag: '01 • TRANSPARENCY',
+      badge: '⚡ Apache 2.0',
+      accentColor: '#38bdf8',
+      bgColor: '#0c162d',
+      features: [
+        'Inspectable algorithm formulas',
+        'Self-hosted Docker deployment',
+        'Direct PostgreSQL data ownership'
+      ],
+      footer: 'Auditable & Community-Driven'
+    },
+    {
+      title: 'Mathematical Fairness',
+      description: 'Eliminates tribal allocation bias and burnout imbalances by evaluating candidate skills, current headroom, and safety reserves objectively.',
+      tag: '02 • IMPARTIALITY',
+      badge: '🎯 Bias-Free',
+      accentColor: '#f7a501',
+      bgColor: '#1c1305',
+      features: [
+        'Multi-vector skill scoring',
+        'Active workload safety margin',
+        'Objective delegation balance'
+      ],
+      footer: 'Fair Task Distribution'
+    },
+    {
+      title: 'Zero-Surveillance Integrity',
+      description: 'We never record keystrokes, webcam feeds, or screen captures. High engineering velocity comes from psychological safety, not tracking.',
+      tag: '03 • PRIVACY',
+      badge: '🛡️ Zero Tracking',
+      accentColor: '#34d399',
+      bgColor: '#051c15',
+      features: [
+        'No invasive client agents',
+        'Zero webcam / screen captures',
+        'Privacy-first telemetry only'
+      ],
+      footer: 'Psychological Safety First'
+    },
+    {
+      title: 'The Sketchbook Ethos',
+      description: 'Inspired by PostHog notebooks. Powerful predictive algorithms rendered in warm, approachable, human-crafted design.',
+      tag: '04 • HUMAN CRAFT',
+      badge: '✨ Warm Design',
+      accentColor: '#f472b6',
+      bgColor: '#1e1022',
+      features: [
+        'PostHog-inspired notebooks',
+        'Intuitive visual explanations',
+        'Built for developer delight'
+      ],
+      footer: 'Human-Crafted Software'
+    }
+  ];
+
+  const aboutOrkaItems = [
+    {
+      title: 'Open-Source & Auditable',
+      description: 'Transparent formulas licensed under Apache 2.0. Inspect every algorithm weight and self-host on Docker with your own PostgreSQL database.',
+      image: '/orka-card-opensource.jpg',
+      bg: '#0f172a'
+    },
+    {
+      title: 'Mathematical Fairness',
+      description: 'Eliminates tribal allocation bias and burnout imbalances by evaluating candidate skills, current queue headroom, and safety reserves objectively.',
+      image: '/orka-card-fairness.jpg',
+      bg: '#1a140b'
+    },
+    {
+      title: 'Zero-Surveillance Integrity',
+      description: 'We never record keystrokes, webcam feeds, or screen captures. High engineering velocity comes from psychological safety, not tracking.',
+      image: '/orka-card-privacy.jpg',
+      bg: '#061d17'
+    },
+    {
+      title: 'The Sketchbook Ethos',
+      description: 'Inspired by PostHog notebooks. Powerful predictive algorithms rendered in warm, approachable, human-crafted design.',
+      image: '/orka-card-sketchbook.jpg',
+      bg: '#1f131a'
+    }
+  ]
+
+  const faqs = [
+    {
+      q: 'How does ORKA calculate task delegation recommendations?',
+      a: 'ORKA evaluates candidate skill alignment, active workload headroom, burnout margin, critical path deadlines, and calendar availability. The algorithm returns a normalized 0–100 score along with transparent explanation codes and backup options.'
+    },
+    {
+      q: 'Does ORKA replace Jira, Linear, or GitHub Issues?',
+      a: 'No. ORKA acts as an intelligence and decision-support layer on top of your existing tools. It synchronizes bidirectionally with Jira, Linear, and GitHub to help engineering managers decide who should do what without altering ticket workflows.'
+    },
+    {
+      q: 'What does "Zero-Surveillance" mean in practice?',
+      a: 'ORKA adheres to strict developer privacy. It never tracks keystrokes, webcam feeds, browser history, or idle time. All analytics are derived exclusively from public pull requests, issue sizing, and calendar availability.'
+    },
+    {
+      q: 'Can we self-host ORKA on our own infrastructure?',
+      a: 'Yes. ORKA is open-source under Apache 2.0. You can deploy it on your own infrastructure via Docker and connect it to any PostgreSQL database (such as Neon, Supabase, or AWS RDS).'
+    },
+    {
+      q: 'How does the 14-day burnout forecast work?',
+      a: 'Burnout Radar evaluates trailing sprint velocity, after-hours commit spikes, meeting density, and time-off deficits to forecast cognitive fatigue 14 days before velocity drops, enabling proactive rebalancing.'
+    }
+  ]
+
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg-canvas)', color: 'var(--text-black)', overflowX: 'hidden' }}>
-      {/* Sticky Header Navbar */}
+    <div style={{ minHeight: '100vh', background: 'var(--colors-canvas)', color: 'var(--colors-body)', overflowX: 'hidden' }}>
+      {/* Floating Translucent Frosted Navbar */}
       <Navbar />
 
-      {/* ── 1. Hero Section (Full-Bleed Cover Photo Backdrop Layout) ──────── */}
+      {/* ═══════════════════════════════════════════════════════════════════════
+          SECTION 1: THE IMMERSIVE VOLUMETRIC HERO (100VH FIRST VIEW)
+      ═══════════════════════════════════════════════════════════════════════ */}
       <section style={{
         position: 'relative',
-        minHeight: 'calc(100vh - 64px)',
+        width: '100%',
+        minHeight: '100vh',
+        background: '#141510',
+        overflow: 'hidden',
+        borderBottom: '2px solid #23251d',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
-        padding: 'clamp(56px, 7vw, 100px) 0',
-        background: `linear-gradient(180deg, rgba(242, 240, 235, 0.78) 0%, rgba(242, 240, 235, 0.88) 100%), url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=2400&q=80') center/cover no-repeat`,
-        boxShadow: 'inset 0 -10px 20px rgba(0, 98, 65, 0.05)'
+        alignItems: 'center'
       }}>
-        <div className="container">
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 'clamp(32px, 5vw, 64px)', alignItems: 'center' }}>
-            {/* Left Hero Column */}
-            <div>
-              {/* Top Pill Badge */}
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 18px', borderRadius: 'var(--radius-pill)', background: 'var(--green-light)', border: '1px solid rgba(0, 98, 65, 0.2)', marginBottom: 24, maxWidth: '100%' }}>
-                <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#00754A', boxShadow: '0 0 8px #00754A', flexShrink: 0 }} />
-                <span style={{ fontSize: 'var(--font-xs)', fontWeight: 700, color: '#006241', letterSpacing: '-0.01em' }}>
-                  Now with real-time burnout prediction
-                </span>
-              </div>
+        {/* Fullscreen Interactive LightRays Canvas */}
+        <div style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 1 }}>
+          <LightRays
+            raysOrigin="top-center"
+            raysColor="#ffffff"
+            raysSpeed={1}
+            lightSpread={0.55}
+            rayLength={3}
+            glow={0.65}
+            haze={0.25}
+            followMouse
+            mouseInfluence={0.1}
+          />
+        </div>
 
-              {/* Headline */}
-              <h1 style={{
-                fontSize: 'clamp(32px, 4.8vw, 54px)',
-                fontWeight: 800,
-                lineHeight: 1.15,
-                letterSpacing: '-0.01em',
-                color: 'var(--text-black)',
-                marginBottom: 20,
-              }}>
-                AI Decision Engine for <br />
-                <span style={{ color: '#006241' }}>
-                  Modern Engineering Teams
-                </span>
-              </h1>
+        {/* Foreground Hero Stage */}
+        <div style={{
+          position: 'relative',
+          zIndex: 10,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          textAlign: 'center',
+          padding: '110px 24px 40px',
+          maxWidth: 980,
+          width: '100%',
+          margin: '0 auto',
+          pointerEvents: 'none'
+        }}>
+          {/* Main Title: Interactive TechText ORKA */}
+          <div style={{ width: '100%', height: '480px', position: 'relative', pointerEvents: 'auto' }}>
+            <TechText
+              text="ORKA"
+              fontWeight={600}
+              fontSize={150}
+              reveal="letter"
+              dashLength={4}
+              dashGap={2}
+              specks={15}
+              intro="none"
+              introDuration={2}
+              clickKick
+              guides={false}
+              color="#ffffff"
+              accentColor="#f7a501"
+            />
 
-              {/* Supporting Text */}
-              <p style={{
-                fontSize: 'var(--font-base)',
-                color: 'var(--text-black-soft)',
-                maxWidth: 580,
-                marginBottom: 32,
-                lineHeight: 1.55,
-              }}>
-                Automate task delegation, predict burnout 14 days early, and run sprint planning in 30 seconds. Built for engineering managers who are tired of managing spreadsheets.
-              </p>
-
-              {/* Hero CTAs (50px full-pill buttons) */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 28, flexWrap: 'wrap' }}>
-                <Link href="/dashboard" className="btn-primary" style={{ padding: '14px 32px', fontSize: 'var(--font-xs)' }}>
-                  Try the dashboard <ArrowRight size={16} />
-                </Link>
-                <Link href="/delegator" className="btn-secondary" style={{ padding: '14px 24px', fontSize: 'var(--font-xs)' }}>
-                  <Play size={15} color="#00754A" /> Watch 2-min demo
-                </Link>
-              </div>
-
-              {/* Micro-Checkmarks Row */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap', fontSize: 'var(--font-xs)', color: 'var(--text-black-soft)', fontWeight: 600 }}>
-                <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <span style={{ color: '#00754A', fontWeight: 800 }}>✓</span> No credit card required
-                </span>
-                <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <span style={{ color: '#00754A', fontWeight: 800 }}>✓</span> Free for small teams
-                </span>
-                <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <span style={{ color: '#00754A', fontWeight: 800 }}>✓</span> Setup in minutes
-                </span>
-              </div>
-            </div>
-
-            {/* Right Hero Column — Interactive Team Office Showcase with Overlays */}
-            <div style={{ position: 'relative' }}>
-              <div style={{ position: 'relative', borderRadius: 20, overflow: 'hidden', boxShadow: '0 20px 40px rgba(0, 98, 65, 0.15)', border: '2px solid rgba(255,255,255,0.8)' }}>
-                <img
-                  src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80"
-                  alt="Engineering team collaborating in cafe open office"
-                  style={{ width: '100%', height: 'auto', display: 'block', maxHeight: 420, objectFit: 'cover' }}
-                />
-
-                {/* Overlay 1: Live Sprint Whiteboard Glass Widget */}
-                <div style={{
-                  position: 'absolute', top: 20, right: 20, width: 260,
-                  background: 'rgba(255, 255, 255, 0.94)', backdropFilter: 'blur(10px)',
-                  borderRadius: 14, padding: 16, border: '1px solid rgba(255, 255, 255, 0.5)',
-                  boxShadow: '0 10px 25px rgba(0,0,0,0.15)'
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-                    <span style={{ fontSize: '13px', fontWeight: 800, color: '#006241' }}>Sprint 47</span>
-                    <span style={{ fontSize: '10px', padding: '2px 8px', borderRadius: 99, background: '#d4e9e2', color: '#006241', fontWeight: 800 }}>● On Track</span>
-                  </div>
-
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 10px', borderRadius: 8, background: '#f8fafc', fontSize: '11px' }}>
-                      <span style={{ fontWeight: 600, color: '#0f172a' }}>Design system updates</span>
-                      <span style={{ background: '#fef2f2', color: '#dc2626', padding: '2px 6px', borderRadius: 4, fontWeight: 700, fontSize: '10px' }}>High</span>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 10px', borderRadius: 8, background: '#f8fafc', fontSize: '11px' }}>
-                      <span style={{ fontWeight: 600, color: '#0f172a' }}>API integration</span>
-                      <span style={{ background: '#fffbeb', color: '#b45309', padding: '2px 6px', borderRadius: 4, fontWeight: 700, fontSize: '10px' }}>Medium</span>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 10px', borderRadius: 8, background: '#f8fafc', fontSize: '11px' }}>
-                      <span style={{ fontWeight: 600, color: '#0f172a' }}>Testing & QA</span>
-                      <span style={{ background: '#f0fdf4', color: '#16a34a', padding: '2px 6px', borderRadius: 4, fontWeight: 700, fontSize: '10px' }}>Low</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Overlay 2: Sticky Wall Note */}
-                <div style={{
-                  position: 'absolute', bottom: 20, right: 20,
-                  background: '#faf6ee', border: '1px solid #dfc49d',
-                  borderRadius: 8, padding: '10px 14px',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                  transform: 'rotate(-2deg)'
-                }}>
-                  <p style={{ fontSize: '11px', fontWeight: 800, color: '#006241', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                    Build · Automate · Scale · Together
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Central Dashboard Control Stage Preview Mockup */}
-          <div style={{ position: 'relative', width: '100%', maxWidth: 1140, margin: 'clamp(40px, 6vw, 64px) auto 0' }}>
-            <div className="glass-card" style={{
-              borderRadius: 20,
-              border: '1px solid var(--border-card)',
-              boxShadow: '0 20px 40px rgba(0, 98, 65, 0.08)',
-              background: '#ffffff',
-              textAlign: 'left',
-              overflow: 'hidden'
+            {/* Hand-drawn Sketchbook Illustration: Developer at desk at right-bottom of ORKA */}
+            <div style={{
+              position: 'absolute',
+              left: 'clamp(240px, calc(50% + 140px), calc(100% - 170px))',
+              top: '220px',
+              pointerEvents: 'none',
+              zIndex: 15,
+              userSelect: 'none'
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 24px', borderBottom: '1px solid var(--border-subtle)', flexWrap: 'wrap', gap: 12 }}>
-                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                  <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#c82014' }} />
-                  <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#b45309' }} />
-                  <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#00754A' }} />
-                </div>
-                <div style={{ fontSize: 'var(--font-xs)', color: 'var(--text-black-soft)', fontWeight: 700, letterSpacing: '-0.01em' }}>
-                  CONTROL CENTER · SPRINT 47 OVERVIEW
-                </div>
-                <Badge variant="green">Sprint On Track</Badge>
-              </div>
-
-              <div style={{ padding: 24 }}>
-                <div className="stats-grid">
-                  <div style={{ padding: 18, borderRadius: 14, background: 'var(--bg-canvas)', border: '1px solid var(--border-subtle)' }}>
-                    <p style={{ fontSize: 'var(--font-xs)', color: 'var(--text-black-soft)', fontWeight: 600 }}>ACTIVE TASKS</p>
-                    <p style={{ fontSize: 'var(--font-lg)', fontWeight: 800, color: '#006241', margin: '6px 0' }}>47 Tasks</p>
-                    <Badge variant="blue">+8 this sprint</Badge>
-                  </div>
-                  <div style={{ padding: 18, borderRadius: 14, background: 'var(--bg-canvas)', border: '1px solid var(--border-subtle)' }}>
-                    <p style={{ fontSize: 'var(--font-xs)', color: 'var(--text-black-soft)', fontWeight: 600 }}>TEAM VELOCITY</p>
-                    <p style={{ fontSize: 'var(--font-lg)', fontWeight: 800, color: '#006241', margin: '6px 0' }}>94%</p>
-                    <Badge variant="green">Optimal Speed</Badge>
-                  </div>
-                  <div style={{ padding: 18, borderRadius: 14, background: 'var(--bg-canvas)', border: '1px solid var(--border-subtle)' }}>
-                    <p style={{ fontSize: 'var(--font-xs)', color: 'var(--text-black-soft)', fontWeight: 600 }}>BURNOUT RISK</p>
-                    <p style={{ fontSize: 'var(--font-lg)', fontWeight: 800, color: '#00754A', margin: '6px 0' }}>Low</p>
-                    <Badge variant="teal">1 Watch Listed</Badge>
-                  </div>
-                  <div style={{ padding: 18, borderRadius: 14, background: 'var(--bg-canvas)', border: '1px solid var(--border-subtle)' }}>
-                    <p style={{ fontSize: 'var(--font-xs)', color: 'var(--text-black-soft)', fontWeight: 600 }}>HYBRID COMPLIANCE</p>
-                    <p style={{ fontSize: 'var(--font-lg)', fontWeight: 800, color: '#006241', margin: '6px 0' }}>100%</p>
-                    <Badge variant="indigo">Policy Active</Badge>
-                  </div>
-                </div>
-              </div>
+              <img
+                src="/orka-burnout-sketch.png"
+                alt="Chalk sketch of developer slouched at computer desk"
+                style={{
+                  display: 'block',
+                  width: 'clamp(130px, 16vw, 175px)',
+                  height: 'auto',
+                  opacity: 0.92,
+                  filter: 'drop-shadow(0 0 16px rgba(255, 255, 255, 0.22))',
+                  userSelect: 'none'
+                }}
+              />
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* ── 2. 4-Feature Quick Highlights Ribbon below Control Stage ────────── */}
-      <section style={{ padding: '32px 0', background: '#ffffff', borderTop: '1px solid var(--border-subtle)', borderBottom: '1px solid var(--border-subtle)' }}>
-        <div className="container" style={{ maxWidth: 1140 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 24 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-              <div style={{ width: 42, height: 42, borderRadius: '50%', background: '#d4e9e2', color: '#00754A', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <Brain size={20} />
-              </div>
-              <div>
-                <p style={{ fontSize: 'var(--font-xs)', fontWeight: 800, color: 'var(--text-black)' }}>Smarter Delegation</p>
-                <p style={{ fontSize: '11px', color: 'var(--text-black-soft)', marginTop: 2 }}>AI assigns work to the right people.</p>
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-              <div style={{ width: 42, height: 42, borderRadius: '50%', background: '#eff6ff', color: '#1d4ed8', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <Flame size={20} />
-              </div>
-              <div>
-                <p style={{ fontSize: 'var(--font-xs)', fontWeight: 800, color: 'var(--text-black)' }}>Predict Burnout</p>
-                <p style={{ fontSize: '11px', color: 'var(--text-black-soft)', marginTop: 2 }}>Identify risks 14 days earlier.</p>
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-              <div style={{ width: 42, height: 42, borderRadius: '50%', background: '#f0fdfa', color: '#0f766e', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <CalendarDays size={20} />
-              </div>
-              <div>
-                <p style={{ fontSize: 'var(--font-xs)', fontWeight: 800, color: 'var(--text-black)' }}>Plan Faster</p>
-                <p style={{ fontSize: '11px', color: 'var(--text-black-soft)', marginTop: 2 }}>Turn hours of planning into seconds.</p>
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-              <div style={{ width: 42, height: 42, borderRadius: '50%', background: '#f5f3ff', color: '#6d28d9', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <Shield size={20} />
-              </div>
-              <div>
-                <p style={{ fontSize: 'var(--font-xs)', fontWeight: 800, color: 'var(--text-black)' }}>Built for Teams</p>
-                <p style={{ fontSize: '11px', color: 'var(--text-black-soft)', marginTop: 2 }}>Designed for real dev workflows.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── 3. Logo Cloud / Social Proof Ribbon ─────────────────────────────── */}
-      <section style={{ padding: '40px 0', background: 'var(--bg-canvas)', borderBottom: '1px solid var(--border-subtle)' }}>
-        <div className="container" style={{ maxWidth: 1140, textAlign: 'center' }}>
-          <p style={{ fontSize: '11px', fontWeight: 800, color: 'var(--text-black-soft)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 24 }}>
-            TRUSTED BY ENGINEERING TEAMS WORLDWIDE
+          {/* Tagline */}
+          <p style={{
+            fontSize: 'clamp(16px, 2.2vw, 20px)',
+            color: '#cbd5e1',
+            maxWidth: 620,
+            margin: '0 auto 28px',
+            lineHeight: 1.5,
+            fontWeight: 500,
+            textShadow: '0 2px 10px rgba(0, 0, 0, 0.6)'
+          }}>
+            Autonomous engineering decisions. Rendered as a friendly sketchbook.
           </p>
 
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(24px, 4vw, 48px)', flexWrap: 'wrap', opacity: 0.75 }}>
-            <span style={{ fontSize: 'var(--font-md)', fontWeight: 800, color: '#334155', letterSpacing: '-0.02em' }}>Google</span>
-            <span style={{ fontSize: 'var(--font-md)', fontWeight: 800, color: '#334155', letterSpacing: '-0.02em' }}>Microsoft</span>
-            <span style={{ fontSize: 'var(--font-md)', fontWeight: 900, color: '#6366f1', letterSpacing: '-0.03em' }}>stripe</span>
-            <span style={{ fontSize: 'var(--font-md)', fontWeight: 800, color: '#0f172a' }}>N Notion</span>
-            <span style={{ fontSize: 'var(--font-md)', fontWeight: 800, color: '#16a34a' }}>Spotify</span>
-            <span style={{ fontSize: 'var(--font-md)', fontWeight: 800, color: '#ff5a5f' }}>airbnb</span>
-            <span style={{ fontSize: 'var(--font-md)', fontWeight: 800, color: '#4a154b' }}># slack</span>
-            <span style={{ fontSize: 'var(--font-md)', fontWeight: 800, color: '#0052cc' }}>ATLASSIAN</span>
+          {/* Primary CTA */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'auto', marginBottom: 20 }}>
+            <Link
+              href="/login"
+              className="btn-primary-yellow"
+              style={{
+                padding: '13px 36px',
+                fontSize: '15px',
+                fontWeight: 800,
+                boxShadow: '0 0 32px rgba(247, 165, 1, 0.4), 3px 3px 0px #23251d',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                textDecoration: 'none'
+              }}
+            >
+              Get started — free <ArrowRight size={16} />
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* ── 3. 6-Features Section (12px Card Radius + Soft Whisper Shadows) ──── */}
-      <section id="features" style={{ padding: 'clamp(56px, 8vw, 110px) 0' }}>
-        <div className="container" style={{ maxWidth: 1140 }}>
-          <div className="section-header" style={{ marginBottom: 52 }}>
-            <Badge variant="green" style={{ marginBottom: 14 }}>Features</Badge>
-            <h2 style={{ fontSize: 'clamp(26px, 4vw, 42px)', fontWeight: 800, color: '#006241', letterSpacing: '-0.01em' }}>
-              Built for Modern Engineering Management
+      {/* ═══════════════════════════════════════════════════════════════════════
+          SECTION 2: ABOUT ORKA (#about)
+      ═══════════════════════════════════════════════════════════════════════ */}
+      <section id="about" style={{ padding: '96px 0', background: 'var(--colors-canvas)', borderBottom: '1px solid var(--colors-hairline)' }}>
+        <div style={{ maxWidth: 1240, margin: '0 auto', padding: '0 28px' }}>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
+            gap: '64px',
+            alignItems: 'center'
+          }}>
+            {/* Left Column: About ORKA Content */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <div>
+                <span className="text-eyebrow">PHILOSOPHY &amp; MISSION</span>
+                <h2 className="text-display-lg" style={{ marginTop: 8, marginBottom: 16 }}>
+                  About ORKA
+                </h2>
+              </div>
+              <p style={{ fontSize: '16.5px', color: 'var(--colors-body)', lineHeight: 1.7, margin: 0 }}>
+                Engineering squads shouldn't be run by guesswork, spreadsheet triage, or dark-pattern surveillance software. ORKA was built as an open-source decision engine that gives leads mathematical clarity while treating developers as creative humans.
+              </p>
+
+              {/* Core Pillars Highlights */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 8 }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                  <div style={{
+                    width: 28,
+                    height: 28,
+                    borderRadius: 8,
+                    background: 'rgba(56, 189, 248, 0.15)',
+                    color: '#0284c7',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '14px',
+                    fontWeight: 800,
+                    flexShrink: 0,
+                    marginTop: 2
+                  }}>
+                    ✓
+                  </div>
+                  <div>
+                    <h4 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--colors-ink)', margin: 0 }}>
+                      100% Open-Source &amp; Auditable
+                    </h4>
+                    <p style={{ fontSize: '13.5px', color: 'var(--colors-body)', margin: '2px 0 0', lineHeight: 1.5 }}>
+                      Transparent formulas licensed under Apache 2.0. Inspect every algorithm weight or self-host via Docker.
+                    </p>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                  <div style={{
+                    width: 28,
+                    height: 28,
+                    borderRadius: 8,
+                    background: 'rgba(247, 165, 1, 0.2)',
+                    color: '#b45309',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '14px',
+                    fontWeight: 800,
+                    flexShrink: 0,
+                    marginTop: 2
+                  }}>
+                    ✓
+                  </div>
+                  <div>
+                    <h4 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--colors-ink)', margin: 0 }}>
+                      Mathematical Fairness
+                    </h4>
+                    <p style={{ fontSize: '13.5px', color: 'var(--colors-body)', margin: '2px 0 0', lineHeight: 1.5 }}>
+                      Evaluates skill vectors, queue headroom, and safety reserves objectively to eliminate tribal bias.
+                    </p>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                  <div style={{
+                    width: 28,
+                    height: 28,
+                    borderRadius: 8,
+                    background: 'rgba(16, 185, 129, 0.18)',
+                    color: '#047857',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '14px',
+                    fontWeight: 800,
+                    flexShrink: 0,
+                    marginTop: 2
+                  }}>
+                    ✓
+                  </div>
+                  <div>
+                    <h4 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--colors-ink)', margin: 0 }}>
+                      Zero-Surveillance Guarantee
+                    </h4>
+                    <p style={{ fontSize: '13.5px', color: 'var(--colors-body)', margin: '2px 0 0', lineHeight: 1.5 }}>
+                      Never records keystrokes, webcams, or idle time. High velocity comes from psychological safety.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            {/* Right Column: Interactive 3D Tilt Carousel */}
+            <div style={{
+              position: 'relative',
+              width: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              minHeight: '480px'
+            }}>
+              <Carousel
+                items={aboutOrkaItems}
+                baseWidth={420}
+                aspectRatio={1.2}
+                effect="tilt"
+                indicator="dots"
+                frame={true}
+                arrows={true}
+                loop={true}
+                autoplay={false}
+                autoplayDelay={3500}
+                pauseOnHover={true}
+                theme="dark"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════════════════════
+          SECTION 3: HOW IT WORKS (#how-it-works)
+      ═══════════════════════════════════════════════════════════════════════ */}
+      <section id="how-it-works" style={{ padding: '96px 0', background: '#160f03ff', borderBottom: '1px solid rgba(0, 0, 0, 0.14)' }}>
+        <div style={{ maxWidth: 1180, margin: '0 auto', padding: '0 28px' }}>
+          <div style={{ textAlign: 'center', maxWidth: 680, margin: '0 auto 56px' }}>
+            <span style={{ fontSize: '12px', fontWeight: 900, letterSpacing: '0.12em', color: 'rgba(247, 247, 250, 1)', opacity: 0.85, textTransform: 'uppercase' }}>
+              WORKFLOW &amp; EXECUTION
+            </span>
+            <h2 className="text-display-lg" style={{ marginTop: 8, marginBottom: 14, color: '#f8f8fdff', fontWeight: 900 }}>
+              How ORKA Works
             </h2>
-            <p style={{ color: 'var(--text-black-soft)', marginTop: 10, fontSize: 'var(--font-base)', maxWidth: 600, margin: '10px auto 0' }}>
-              Six core modules designed to optimize team flow and prevent burnout.
+            <p style={{ fontSize: '16.5px', color: '#f7f7f7e0', lineHeight: 1.6, fontWeight: 500 }}>
+              From backlog ingestion to proactive burnout protection, ORKA operates quietly in the background without disrupting developer focus.
             </p>
           </div>
 
-          <div className="features-grid" style={{ gap: 24 }}>
-            {/* Card 1 */}
-            <div className="glass-card flex flex-col justify-between" style={{ padding: 24, borderRadius: 16 }}>
-              <div>
-                <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'var(--green-light)', color: '#00754A', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
-                  <Brain size={22} />
-                </div>
-                <h3 style={{ fontSize: 'var(--font-md)', fontWeight: 800, color: '#006241', marginBottom: 8, letterSpacing: '-0.01em' }}>1. AI Task Delegation</h3>
-                <p style={{ fontSize: 'var(--font-xs)', color: 'var(--text-black-soft)', lineHeight: 1.55 }}>
-                  Automatically assigns tasks to the right team member based on skills, workload, and availability scores in real-time.
-                </p>
-              </div>
-              <Link href="/delegator" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 'var(--font-xs)', color: '#00754A', fontWeight: 700, marginTop: 24, textDecoration: 'none' }}>
-                Explore Delegator <ChevronRight size={14} />
-              </Link>
-            </div>
-
-            {/* Card 2 */}
-            <div className="glass-card flex flex-col justify-between" style={{ padding: 24, borderRadius: 16 }}>
-              <div>
-                <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#eff6ff', color: '#1d4ed8', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
-                  <Shield size={22} />
-                </div>
-                <h3 style={{ fontSize: 'var(--font-md)', fontWeight: 800, color: '#006241', marginBottom: 8, letterSpacing: '-0.01em' }}>2. Sprint Analytics</h3>
-                <p style={{ fontSize: 'var(--font-xs)', color: 'var(--text-black-soft)', lineHeight: 1.55 }}>
-                  Visualise sprint velocity, burndown, and cycle time with intelligent forecasting powered by historical data.
-                </p>
-              </div>
-              <Link href="/sprint" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 'var(--font-xs)', color: '#1d4ed8', fontWeight: 700, marginTop: 24, textDecoration: 'none' }}>
-                Explore Analytics <ChevronRight size={14} />
-              </Link>
-            </div>
-
-            {/* Card 3 */}
-            <div className="glass-card flex flex-col justify-between" style={{ padding: 24, borderRadius: 16 }}>
-              <div>
-                <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#f0fdfa', color: '#0f766e', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
-                  <Home size={22} />
-                </div>
-                <h3 style={{ fontSize: 'var(--font-md)', fontWeight: 800, color: '#006241', marginBottom: 8, letterSpacing: '-0.01em' }}>3. Team Capacity Planner</h3>
-                <p style={{ fontSize: 'var(--font-xs)', color: 'var(--text-black-soft)', lineHeight: 1.55 }}>
-                  Balance workloads across your whole org. See who has headroom before you commit to another deadline.
-                </p>
-              </div>
-              <Link href="/wfh" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 'var(--font-xs)', color: '#0f766e', fontWeight: 700, marginTop: 24, textDecoration: 'none' }}>
-                Check Capacity <ChevronRight size={14} />
-              </Link>
-            </div>
-
-            {/* Card 4 */}
-            <div className="glass-card flex flex-col justify-between" style={{ padding: 24, borderRadius: 16 }}>
-              <div>
-                <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#fef2f2', color: '#c82014', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
-                  <Flame size={22} />
-                </div>
-                <h3 style={{ fontSize: 'var(--font-md)', fontWeight: 800, color: '#006241', marginBottom: 8, letterSpacing: '-0.01em' }}>4. Burnout Radar</h3>
-                <p style={{ fontSize: 'var(--font-xs)', color: 'var(--text-black-soft)', lineHeight: 1.55 }}>
-                  14-day early warning system that surfaces pressure signals before engineers burn out or go quiet.
-                </p>
-              </div>
-              <Link href="/burnout" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 'var(--font-xs)', color: '#c82014', fontWeight: 700, marginTop: 24, textDecoration: 'none' }}>
-                Open Burnout Radar <ChevronRight size={14} />
-              </Link>
-            </div>
-
-            {/* Card 5 */}
-            <div className="glass-card flex flex-col justify-between" style={{ padding: 24, borderRadius: 16 }}>
-              <div>
-                <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#f5f3ff', color: '#6d28d9', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
-                  <CalendarDays size={22} />
-                </div>
-                <h3 style={{ fontSize: 'var(--font-md)', fontWeight: 800, color: '#006241', marginBottom: 8, letterSpacing: '-0.01em' }}>5. Compliance Logs</h3>
-                <p style={{ fontSize: 'var(--font-xs)', color: 'var(--text-black-soft)', lineHeight: 1.55 }}>
-                  Audit-ready trails for every task change, delegation event, and status update across your workspace.
-                </p>
-              </div>
-              <Link href="/dashboard" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 'var(--font-xs)', color: '#6d28d9', fontWeight: 700, marginTop: 24, textDecoration: 'none' }}>
-                View Audit Logs <ChevronRight size={14} />
-              </Link>
-            </div>
-
-            {/* Card 6 */}
-            <div className="glass-card flex flex-col justify-between" style={{ padding: 24, borderRadius: 16 }}>
-              <div>
-                <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#fffbeb', color: '#b45309', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
-                  <Layers size={22} />
-                </div>
-                <h3 style={{ fontSize: 'var(--font-md)', fontWeight: 800, color: '#006241', marginBottom: 8, letterSpacing: '-0.01em' }}>6. Integrations Hub</h3>
-                <p style={{ fontSize: 'var(--font-xs)', color: 'var(--text-black-soft)', lineHeight: 1.55 }}>
-                  Connect Jira, Linear, GitHub, Slack, and 40+ tools in minutes. Your data flows where your team already works.
-                </p>
-              </div>
-              <Link href="/dashboard" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 'var(--font-xs)', color: '#b45309', fontWeight: 700, marginTop: 24, textDecoration: 'none' }}>
-                Browse Hub <ChevronRight size={14} />
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── 4. AI Algorithm Section ─────────────────────────────────────────── */}
-      <AlgorithmSection />
-
-      {/* ── 5. Testimonials Section ─────────────────────────────────────────── */}
-      <TestimonialsSection />
-
-      {/* ── 6. Pricing Section ─────────────────────────────────────────────── */}
-      <PricingSection />
-
-      {/* ── 7. House Green Dark Feature Band (#1E3932) ───────────────────────── */}
-      <section style={{ margin: 'clamp(48px, 6vw, 80px) 0' }}>
-        <div className="container" style={{ maxWidth: 1140 }}>
-          <div className="house-green-band" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 24, borderRadius: 20, padding: 'clamp(32px, 5vw, 56px)' }}>
-            <div style={{ maxWidth: 600 }}>
-              <h2 style={{ fontSize: 'clamp(24px, 3.8vw, 36px)', fontWeight: 800, color: '#ffffff', letterSpacing: '-0.01em' }}>
-                Ready to automate engineering decisions?
-              </h2>
-              <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: 'var(--font-sm)', marginTop: 10, lineHeight: 1.5 }}>
-                Join 200+ engineering teams running faster sprints with 0 burnout.
+          {/* Interactive Black Folder Workspace with the 3 Workflow Cards on Golden Amber */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: '56px 24px',
+            background: 'rgba(237, 235, 235, 0.08)',
+            borderRadius: '24px',
+            border: '1px solid rgba(0, 0, 0, 0.12)',
+            minHeight: '440px',
+            position: 'relative',
+            boxShadow: 'inset 0 2px 8px rgba(0, 0, 0, 0.06)'
+          }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '18px' }}>
+              <Folder
+                mode="book"
+                variant="solid"
+                color="#0a0a0c"
+                paperColor="#ffffff"
+                label="Workflow"
+                items={workflowCards}
+                theme="dark"
+                size={1.3}
+              />
+              <p style={{ fontSize: '13px', fontWeight: 700, color: '#f3f3f3ff', opacity: 0.85, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+                Workflow Journal • Click to open &amp; inspect steps
               </p>
             </div>
-            <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-              <Link href="/dashboard" className="btn-primary" style={{ background: '#ffffff', color: '#00754A', border: '1px solid #ffffff', padding: '14px 32px', fontSize: 'var(--font-xs)' }}>
-                Start free trial
-              </Link>
-              <a href="mailto:sales@orka.ai" className="btn-secondary" style={{ color: '#ffffff', borderColor: '#ffffff', padding: '14px 28px', fontSize: 'var(--font-xs)' }}>
-                Talk to sales
-              </a>
-            </div>
           </div>
         </div>
       </section>
 
-      {/* ── 8. FAQ Accordion ───────────────────────────────────────────────── */}
-      <section style={{ padding: 'clamp(56px, 8vw, 110px) 0', background: '#ffffff', borderTop: '1px solid var(--border-subtle)' }}>
-        <div className="container" style={{ maxWidth: 780 }}>
-          <div className="section-header" style={{ marginBottom: 44 }}>
-            <Badge variant="gray" style={{ marginBottom: 12 }}>Knowledge</Badge>
-            <h2 style={{ fontSize: 'clamp(26px, 4vw, 42px)', fontWeight: 800, color: '#006241', letterSpacing: '-0.01em' }}>
-              Frequently Asked Questions
+
+      {/* ═══════════════════════════════════════════════════════════════════════
+          SECTION 3: GOLDEN RATIO RESPONSE CHAIN (#features)
+      ═══════════════════════════════════════════════════════════════════════ */}
+      <section id="features" style={{ padding: '88px 0', background: 'var(--colors-canvas)', borderBottom: '1px solid var(--colors-hairline)', overflow: 'hidden' }}>
+        <div style={{ maxWidth: 1320, margin: '0 auto', padding: '0 28px' }}>
+          
+          {/* Header Row: Left-aligned with Eyebrow, Title, Subtitle (No Arrows) */}
+          <div style={{ maxWidth: 680, marginBottom: 44 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+              <span style={{ color: '#ea580c', fontWeight: 800, fontSize: '13px', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+                — GOLDEN RATIO RESPONSE CHAIN
+              </span>
+            </div>
+            <h2 style={{ fontSize: 'clamp(32px, 4vw, 44px)', fontWeight: 800, color: '#09090b', letterSpacing: '-0.03em', lineHeight: 1.15, marginBottom: 14 }}>
+              Seats in the response chain-
             </h2>
+            <p style={{ fontSize: '16px', color: '#52525b', lineHeight: 1.6 }}>
+              Six intelligent modules designed to streamline squad allocation, prevent overwork, and align delivery targets.
+            </p>
+          </div>
+
+        </div>
+
+        {/* Continuous Animated Moving Cards Track (Infinite Seamless Marquee) */}
+        <div className="orka-marquee-wrapper">
+          {[0, 1, 2].map((groupIndex) => (
+            <div key={groupIndex} className="orka-marquee-group" aria-hidden={groupIndex > 0}>
+              {[
+                {
+                  tag: 'TASK DELEGATION',
+                  icon: <Zap size={18} strokeWidth={2} />,
+                  title: 'Autonomous Task Delegation',
+                  description: 'Matches incoming issues to the optimal engineer using a 5-factor scoring model that balances skill mastery with available bandwidth.',
+                  metricLabel: 'SCORING MODEL',
+                  metricValue: '5-Factor Fit',
+                },
+                {
+                  tag: 'BURNOUT RADAR',
+                  icon: <Flame size={18} strokeWidth={2} />,
+                  title: '14-Day Predictive Burnout Radar',
+                  description: 'Identifies cognitive overload patterns from overtime hours, meeting density, and focus block deficits two weeks early.',
+                  metricLabel: 'LEAD TIME',
+                  metricValue: '14 Days Ahead',
+                },
+                {
+                  tag: 'QUORUM BALANCING',
+                  icon: <Users size={18} strokeWidth={2} />,
+                  title: 'Hybrid Quorum Balancing',
+                  description: 'Coordinates in-office attendance so cross-functional squads overlap on critical collaborative days without forced calendar mandates.',
+                  metricLabel: 'SQUAD SYNERGY',
+                  metricValue: 'Dynamic Overlap',
+                },
+                {
+                  tag: 'DEADLINE SHIELD',
+                  icon: <ShieldCheck size={18} strokeWidth={2} />,
+                  title: 'Critical Path Deadline Shield',
+                  description: 'Tracks architectural dependencies in real time, calculating Monte Carlo completion probabilities to flag delivery slip risks early.',
+                  metricLabel: 'SIMULATION',
+                  metricValue: 'Monte Carlo 99.2%',
+                },
+                {
+                  tag: 'CAPACITY WINDOWS',
+                  icon: <Clock size={18} strokeWidth={2} />,
+                  title: 'Daily Capacity Windows',
+                  description: 'Enforces realistic daily effort limits (≤ 8h/day) with automatic PTO and holiday suppression to eliminate crunch before sprint close.',
+                  metricLabel: 'EFFORT CAP',
+                  metricValue: '≤ 8h Daily Cap',
+                },
+                {
+                  tag: 'SURVEILLANCE FREE',
+                  icon: <Lock size={18} strokeWidth={2} />,
+                  title: 'Zero-Surveillance Privacy',
+                  description: 'Built on engineering respect. No keystroke trackers, webcam monitors, or screenshots. High trust drives sustainable performance.',
+                  metricLabel: 'SURVEILLANCE',
+                  metricValue: 'Zero Telemetry',
+                },
+              ].map((card, idx) => (
+                <div
+                  key={idx}
+                  style={{
+                    flexShrink: 0,
+                    width: 320,
+                    minHeight: 380,
+                    borderRadius: 22,
+                    background: '#242427',
+                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                    padding: '28px 24px 22px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    boxShadow: '0 8px 24px rgba(0, 0, 0, 0.16)',
+                    transition: 'transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease',
+                    cursor: 'default'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-6px)'
+                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.22)'
+                    e.currentTarget.style.boxShadow = '0 16px 36px rgba(0, 0, 0, 0.32)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)'
+                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.08)'
+                    e.currentTarget.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.16)'
+                  }}
+                >
+                  {/* Top Row: Pill Tag + Circular Icon */}
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28 }}>
+                      <span style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        padding: '5px 12px',
+                        borderRadius: 9999,
+                        background: 'rgba(255, 255, 255, 0.08)',
+                        border: '1px solid rgba(255, 255, 255, 0.06)',
+                        fontSize: '11px',
+                        fontWeight: 700,
+                        letterSpacing: '0.08em',
+                        color: '#d4d4d8',
+                        textTransform: 'uppercase',
+                        fontFamily: 'monospace, var(--font-sans)'
+                      }}>
+                        {card.tag}
+                      </span>
+                      <div style={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: '50%',
+                        background: 'rgba(255, 255, 255, 0.06)',
+                        border: '1px solid rgba(255, 255, 255, 0.08)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: '#f4f4f5'
+                      }}>
+                        {card.icon}
+                      </div>
+                    </div>
+
+                    {/* Card Title & Description */}
+                    <h3 style={{
+                      fontSize: '21px',
+                      fontWeight: 700,
+                      color: '#ffffff',
+                      lineHeight: 1.3,
+                      marginBottom: 14,
+                      letterSpacing: '-0.01em'
+                    }}>
+                      {card.title}
+                    </h3>
+                    <p style={{
+                      fontSize: '13.5px',
+                      color: '#a1a1aa',
+                      lineHeight: 1.65,
+                      fontWeight: 400
+                    }}>
+                      {card.description}
+                    </p>
+                  </div>
+
+                  {/* Bottom Row: Divider + Metric Stat */}
+                  <div style={{
+                    borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+                    paddingTop: 18,
+                    marginTop: 24,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between'
+                  }}>
+                    <span style={{
+                      fontSize: '11px',
+                      fontWeight: 700,
+                      letterSpacing: '0.08em',
+                      color: '#71717a',
+                      textTransform: 'uppercase',
+                      fontFamily: 'monospace, var(--font-sans)'
+                    }}>
+                      {card.metricLabel}
+                    </span>
+                    <span style={{
+                      fontSize: '14px',
+                      fontWeight: 700,
+                      color: '#f4f4f5',
+                      letterSpacing: '-0.01em'
+                    }}>
+                      {card.metricValue}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════════════════════
+          SECTION 4: TRANSPARENT PRICING (#pricing)
+      ═══════════════════════════════════════════════════════════════════════ */}
+      <section id="pricing" style={{ padding: '88px 0', background: '#797975ff', borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
+        <div style={{ maxWidth: 1180, margin: '0 auto', padding: '0 28px' }}>
+          <div style={{ textAlign: 'center', maxWidth: 640, margin: '0 auto 40px' }}>
+            <span style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.1em', color: '#f7a501', textTransform: 'uppercase' }}>
+              SIMPLE &amp; TRANSPARENT
+            </span>
+            <h2 className="text-display-lg" style={{ marginTop: 8, marginBottom: 14, color: '#ffffff', fontWeight: 900 }}>
+              Plans for Squads of Any Size
+            </h2>
+            <p style={{ fontSize: '16px', color: 'rgba(255, 255, 255, 0.75)', lineHeight: 1.6 }}>
+              Open-source forever. Scale seamlessly to managed cloud or private deployment.
+            </p>
+
+            {/* Billing Cycle Switch */}
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: 'rgba(255, 255, 255, 0.08)', border: '1px solid rgba(255, 255, 255, 0.12)', padding: 4, borderRadius: 9999, marginTop: 20 }}>
+              <button
+                onClick={() => setBillingCycle('monthly')}
+                style={{
+                  background: billingCycle === 'monthly' ? '#ffffff' : 'transparent',
+                  color: billingCycle === 'monthly' ? '#09090b' : 'rgba(255, 255, 255, 0.75)',
+                  border: 'none',
+                  padding: '6px 16px',
+                  borderRadius: 9999,
+                  fontSize: '13px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  boxShadow: billingCycle === 'monthly' ? '0 1px 4px rgba(0,0,0,0.2)' : 'none',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                Monthly
+              </button>
+              <button
+                onClick={() => setBillingCycle('annual')}
+                style={{
+                  background: billingCycle === 'annual' ? '#ffffff' : 'transparent',
+                  color: billingCycle === 'annual' ? '#09090b' : 'rgba(255, 255, 255, 0.75)',
+                  border: 'none',
+                  padding: '6px 16px',
+                  borderRadius: 9999,
+                  fontSize: '13px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  boxShadow: billingCycle === 'annual' ? '0 1px 4px rgba(0,0,0,0.2)' : 'none',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                Annual <span style={{ color: '#059669', fontSize: '11px', fontWeight: 800, marginLeft: 2 }}>Save 20%</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Pricing Cards Grid - Powered by PixelCard in Light Theme with Black Text */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 24, alignItems: 'stretch' }}>
+            {/* Tier 1: Community */}
+            <PixelCard
+              variant="default"
+              theme="light"
+              radius={18}
+              style={{ width: '100%', height: '100%', background: '#ffffff', border: '1px solid #e4e4e7', boxShadow: '0 10px 30px rgba(0, 0, 0, 0.05)' }}
+            >
+              <div style={{ padding: '36px 32px', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxSizing: 'border-box' }}>
+                <div>
+                  <span style={{
+                    display: 'inline-block',
+                    fontSize: '11px',
+                    fontWeight: 800,
+                    letterSpacing: '0.06em',
+                    padding: '4px 10px',
+                    borderRadius: 9999,
+                    background: 'rgba(5, 150, 105, 0.1)',
+                    color: '#059669',
+                    border: '1px solid rgba(5, 150, 105, 0.25)',
+                    marginBottom: 14
+                  }}>COMMUNITY EDITION</span>
+                  <h3 style={{ fontSize: '24px', fontWeight: 800, color: '#09090b', margin: '8px 0 6px' }}>Open Source</h3>
+                  <p style={{ fontSize: '14px', color: '#3f3f46', marginBottom: 20, lineHeight: 1.5 }}>Self-hosted for growing developer squads.</p>
+                  <div style={{ fontSize: '42px', fontWeight: 900, color: '#09090b', marginBottom: 24 }}>
+                    $0 <span style={{ fontSize: '15px', fontWeight: 600, color: '#52525b' }}>/ forever</span>
+                  </div>
+                  <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 32px', display: 'flex', flexDirection: 'column', gap: 12, fontSize: '14px' }}>
+                    <li style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#18181b', fontWeight: 500 }}><Check size={16} color="#059669" /> Up to 15 engineers</li>
+                    <li style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#18181b', fontWeight: 500 }}><Check size={16} color="#059669" /> 5-Factor task delegation engine</li>
+                    <li style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#18181b', fontWeight: 500 }}><Check size={16} color="#059669" /> 14-Day burnout radar</li>
+                    <li style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#18181b', fontWeight: 500 }}><Check size={16} color="#059669" /> Self-hosted PostgreSQL &amp; Docker</li>
+                  </ul>
+                </div>
+                <Link href="/login" style={{
+                  width: '100%',
+                  textAlign: 'center',
+                  justifyContent: 'center',
+                  display: 'flex',
+                  alignItems: 'center',
+                  padding: '12px 20px',
+                  borderRadius: '10px',
+                  background: '#f4f4f5',
+                  color: '#09090b',
+                  border: '1px solid #e4e4e7',
+                  fontWeight: 700,
+                  fontSize: '14px',
+                  textDecoration: 'none',
+                  transition: 'all 0.2s ease'
+                }}>
+                  Deploy Community →
+                </Link>
+              </div>
+            </PixelCard>
+
+            {/* Tier 2: Pro Squad (Featured - ORKA Yellow PixelCard on White) */}
+            <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+              <div style={{ position: 'absolute', top: -13, right: 24, zIndex: 10 }}>
+                <span style={{
+                  fontSize: '11px',
+                  fontWeight: 800,
+                  letterSpacing: '0.06em',
+                  padding: '4px 12px',
+                  borderRadius: 9999,
+                  background: '#f7a501',
+                  color: '#18181b',
+                  boxShadow: '0 4px 12px rgba(247, 165, 1, 0.4)'
+                }}>MOST POPULAR</span>
+              </div>
+              <PixelCard
+                variant="yellow"
+                theme="light"
+                radius={18}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  background: '#ffffff',
+                  border: '2px solid #f7a501',
+                  boxShadow: '0 12px 36px rgba(247, 165, 1, 0.22), 0 4px 12px rgba(0, 0, 0, 0.06)'
+                }}
+              >
+                <div style={{ padding: '36px 32px', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxSizing: 'border-box' }}>
+                  <div>
+                    <span style={{
+                      display: 'inline-block',
+                      fontSize: '11px',
+                      fontWeight: 800,
+                      letterSpacing: '0.06em',
+                      padding: '4px 10px',
+                      borderRadius: 9999,
+                      background: 'rgba(247, 165, 1, 0.15)',
+                      color: '#d97706',
+                      border: '1px solid rgba(247, 165, 1, 0.4)',
+                      marginBottom: 14
+                    }}>MANAGED CLOUD</span>
+                    <h3 style={{ fontSize: '24px', fontWeight: 800, color: '#09090b', margin: '8px 0 6px' }}>Pro Squad</h3>
+                    <p style={{ fontSize: '14px', color: '#3f3f46', marginBottom: 20, lineHeight: 1.5 }}>Complete orchestration for high-velocity teams.</p>
+                    <div style={{ fontSize: '42px', fontWeight: 900, color: '#09090b', marginBottom: 24 }}>
+                      ${billingCycle === 'annual' ? '15' : '19'} <span style={{ fontSize: '15px', fontWeight: 600, color: '#52525b' }}>/ seat / mo</span>
+                    </div>
+                    <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 32px', display: 'flex', flexDirection: 'column', gap: 12, fontSize: '14px' }}>
+                      <li style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#18181b', fontWeight: 500 }}><Check size={16} color="#f7a501" /> Unlimited engineers</li>
+                      <li style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#18181b', fontWeight: 500 }}><Check size={16} color="#f7a501" /> Bidirectional Jira &amp; Linear sync</li>
+                      <li style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#18181b', fontWeight: 500 }}><Check size={16} color="#f7a501" /> Monte Carlo critical path shield</li>
+                      <li style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#18181b', fontWeight: 500 }}><Check size={16} color="#f7a501" /> Hybrid quorum optimizer</li>
+                      <li style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#18181b', fontWeight: 500 }}><Check size={16} color="#f7a501" /> Priority technical support</li>
+                    </ul>
+                  </div>
+                  <Link href="/login" className="btn-primary-yellow" style={{
+                    width: '100%',
+                    textAlign: 'center',
+                    justifyContent: 'center',
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: '12px 20px',
+                    borderRadius: '10px',
+                    textDecoration: 'none',
+                    fontWeight: 800,
+                    fontSize: '14px',
+                    background: '#f7a501',
+                    color: '#18181b',
+                    boxShadow: '0 4px 16px rgba(247, 165, 1, 0.4)'
+                  }}>
+                    Start 14-Day Free Trial →
+                  </Link>
+                </div>
+              </PixelCard>
+            </div>
+
+            {/* Tier 3: Enterprise */}
+            <PixelCard
+              variant="blue"
+              theme="light"
+              radius={18}
+              style={{ width: '100%', height: '100%', background: '#ffffff', border: '1px solid #e4e4e7', boxShadow: '0 10px 30px rgba(0, 0, 0, 0.05)' }}
+            >
+              <div style={{ padding: '36px 32px', width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxSizing: 'border-box' }}>
+                <div>
+                  <span style={{
+                    display: 'inline-block',
+                    fontSize: '11px',
+                    fontWeight: 800,
+                    letterSpacing: '0.06em',
+                    padding: '4px 10px',
+                    borderRadius: 9999,
+                    background: 'rgba(2, 132, 199, 0.1)',
+                    color: '#0284c7',
+                    border: '1px solid rgba(2, 132, 199, 0.25)',
+                    marginBottom: 14
+                  }}>CUSTOM DEPLOYMENT</span>
+                  <h3 style={{ fontSize: '24px', fontWeight: 800, color: '#09090b', margin: '8px 0 6px' }}>Enterprise</h3>
+                  <p style={{ fontSize: '14px', color: '#3f3f46', marginBottom: 20, lineHeight: 1.5 }}>Dedicated security, compliance, and custom algorithms.</p>
+                  <div style={{ fontSize: '42px', fontWeight: 900, color: '#09090b', marginBottom: 24 }}>
+                    Custom <span style={{ fontSize: '15px', fontWeight: 600, color: '#52525b' }}>/ annual</span>
+                  </div>
+                  <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 32px', display: 'flex', flexDirection: 'column', gap: 12, fontSize: '14px' }}>
+                    <li style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#18181b', fontWeight: 500 }}><Check size={16} color="#0284c7" /> Dedicated Neon DB instance</li>
+                    <li style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#18181b', fontWeight: 500 }}><Check size={16} color="#0284c7" /> Custom dispatch algorithm weights</li>
+                    <li style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#18181b', fontWeight: 500 }}><Check size={16} color="#0284c7" /> SSO, SAML, and audit log exports</li>
+                    <li style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#18181b', fontWeight: 500 }}><Check size={16} color="#0284c7" /> Dedicated engineering advisor</li>
+                  </ul>
+                </div>
+                <Link href="/login" style={{
+                  width: '100%',
+                  textAlign: 'center',
+                  justifyContent: 'center',
+                  display: 'flex',
+                  alignItems: 'center',
+                  padding: '12px 20px',
+                  borderRadius: '10px',
+                  background: '#f4f4f5',
+                  color: '#09090b',
+                  border: '1px solid #e4e4e7',
+                  fontWeight: 700,
+                  fontSize: '14px',
+                  textDecoration: 'none',
+                  transition: 'all 0.2s ease'
+                }}>
+                  Contact Enterprise →
+                </Link>
+              </div>
+            </PixelCard>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════════════════════
+          SECTION 5: FREQUENTLY ASKED QUESTIONS (#faq)
+      ═══════════════════════════════════════════════════════════════════════ */}
+      <section id="faq" style={{ padding: '88px 0', background: 'var(--colors-canvas)', borderBottom: '1px solid var(--colors-hairline)' }}>
+        <div style={{ maxWidth: 840, margin: '0 auto', padding: '0 24px' }}>
+          <div style={{ textAlign: 'center', marginBottom: 48 }}>
+            <span className="text-eyebrow">COMMON INQUIRIES</span>
+            <h2 className="text-display-lg" style={{ marginTop: 8 }}>Frequently Asked Questions</h2>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-            {[
-              {
-                q: 'How does ORKA detect burnout risk 14 days in advance?',
-                a: 'ORKA analyzes cognitive load telemetry, meeting density, context switching frequency, and focus hour trends to flag early burnout signals before performance decline occurs.'
-              },
-              {
-                q: 'Is ORKA integrated with live HR datasets?',
-                a: 'Yes! ORKA is fully integrated with the IBM HR Analytics dataset, using machine-learned feature weights to prevent attrition and optimize team wellness.'
-              },
-              {
-                q: 'How does the 5-Factor Task Delegator compute match scores?',
-                a: 'It uses a weighted multi-factor formula evaluating Skill Match (35%), Available Hours (25%), Workload Inverse (20%), Performance Rating (15%), and Task Urgency (5%).'
-              },
-              {
-                q: 'Can ORKA enforce company WFH policies automatically?',
-                a: 'Yes. The WFH Decider factors in commute times, deep focus task requirements, and team meeting schedules to issue policy-compliant remote work approvals.'
-              }
-            ].map((item, i) => (
-              <div
-                key={i}
-                className="glass-card"
-                style={{
-                  cursor: 'pointer', transition: 'all 200ms ease',
-                  borderRadius: 14, padding: '20px 24px',
-                  background: openFaq === i ? 'var(--green-light)' : '#ffffff',
-                  border: openFaq === i ? '1px solid rgba(0, 117, 74, 0.35)' : '1px solid var(--border-subtle)'
-                }}
-                onClick={() => setOpenFaq(openFaq === i ? null : i)}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
-                  <h3 style={{ fontSize: 'var(--font-xs)', fontWeight: 800, color: '#006241', display: 'flex', alignItems: 'center', gap: 12, lineHeight: 1.4 }}>
-                    <HelpCircle size={18} color="#00754A" style={{ flexShrink: 0 }} /> {item.q}
-                  </h3>
-                  <ChevronRight size={18} color="rgba(0,0,0,0.58)" style={{ transform: openFaq === i ? 'rotate(90deg)' : 'none', transition: 'transform 200ms ease', flexShrink: 0 }} />
-                </div>
-                {openFaq === i && (
-                  <p style={{ fontSize: 'var(--font-xs)', color: 'rgba(0,0,0,0.87)', marginTop: 14, lineHeight: 1.6, paddingLeft: 30 }}>
-                    {item.a}
+            {faqs.map((faq, idx) => (
+              <div key={idx} className="bright-card" style={{ padding: 22, overflow: 'hidden' }}>
+                <button
+                  onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
+                  style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer', padding: 0 }}
+                >
+                  <span style={{ fontSize: '16px', fontWeight: 800, color: 'var(--colors-ink)' }}>{faq.q}</span>
+                  <Plus size={18} color="var(--colors-mute)" style={{ transform: openFaq === idx ? 'rotate(45deg)' : 'none', transition: 'transform 150ms ease' }} />
+                </button>
+                {openFaq === idx && (
+                  <p style={{ fontSize: '14.5px', color: 'var(--colors-body)', lineHeight: 1.6, marginTop: 14, paddingTop: 14, borderTop: '1px solid var(--colors-hairline-soft)', margin: '14px 0 0' }}>
+                    {faq.a}
                   </p>
                 )}
               </div>
@@ -467,24 +959,47 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Signature Floating Circular "Frap" Button (56px #00754A Green Accent) */}
-      <Link href="/dashboard" className="frap-btn" title="Open Dashboard" aria-label="Open Dashboard">
-        <Plus size={24} />
-      </Link>
-
-      {/* ── 9. Dark House Green Footer (#1E3932) ────────────────────────────── */}
-      <footer style={{ padding: 'var(--space-6) 0', borderTop: '1px solid var(--border-subtle)', background: 'var(--house-green)', color: '#ffffff' }}>
-        <div className="container" style={{ maxWidth: 1140, display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 'var(--font-xs)', color: 'rgba(255,255,255,0.7)', flexWrap: 'wrap', gap: 16 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <div style={{ width: 24, height: 24, borderRadius: '50%', background: '#ffffff', color: '#006241', fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>O</div>
-            <span style={{ fontWeight: 800, color: '#ffffff' }}>v2</span>
-            <span>· Starbucks-Inspired Retail Flagship UI</span>
+      {/* ═══════════════════════════════════════════════════════════════════════
+          SECTION 6: POSTHOG-INSPIRED SKETCHBOOK FOOTER
+      ═══════════════════════════════════════════════════════════════════════ */}
+      <footer style={{ background: '#09090b', borderTop: '1px solid rgba(255, 255, 255, 0.08)', padding: '56px 0 36px', color: '#f4f4f5' }}>
+        <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 28px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 36, marginBottom: 48 }}>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+                <img src="/orka-badge.png" alt="ORKA Logo" style={{ width: 32, height: 32, borderRadius: '50%', boxShadow: '0 2px 8px rgba(247, 165, 1, 0.4)' }} />
+                <span style={{ fontSize: '19px', fontWeight: 900, color: '#ffffff', letterSpacing: '-0.02em' }}>ORKA</span>
+              </div>
+              <p style={{ fontSize: '13.5px', color: '#a1a1aa', lineHeight: 1.6, margin: 0 }}>
+                Autonomous engineering decisions. Rendered as a friendly sketchbook. Open-source under Apache 2.0.
+              </p>
+            </div>
+            <div>
+              <p style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.08em', color: '#f7a501', marginBottom: 14, textTransform: 'uppercase' }}>PRODUCT</p>
+              <p style={{ fontSize: '13.5px', marginBottom: 10 }}><a href="#about" style={{ color: '#d4d4d8', textDecoration: 'none', transition: 'color 0.15s ease' }}>About ORKA</a></p>
+              <p style={{ fontSize: '13.5px', marginBottom: 10 }}><a href="#how-it-works" style={{ color: '#d4d4d8', textDecoration: 'none', transition: 'color 0.15s ease' }}>How It Works</a></p>
+              <p style={{ fontSize: '13.5px', marginBottom: 10 }}><a href="#features" style={{ color: '#d4d4d8', textDecoration: 'none', transition: 'color 0.15s ease' }}>Features</a></p>
+              <p style={{ fontSize: '13.5px', marginBottom: 10 }}><a href="#pricing" style={{ color: '#d4d4d8', textDecoration: 'none', transition: 'color 0.15s ease' }}>Pricing</a></p>
+            </div>
+            <div>
+              <p style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.08em', color: '#f7a501', marginBottom: 14, textTransform: 'uppercase' }}>RESOURCES</p>
+              <p style={{ fontSize: '13.5px', marginBottom: 10 }}><a href="#faq" style={{ color: '#d4d4d8', textDecoration: 'none', transition: 'color 0.15s ease' }}>FAQ</a></p>
+              <p style={{ fontSize: '13.5px', color: '#a1a1aa', marginBottom: 10 }}>FastAPI Engine (8000)</p>
+              <p style={{ fontSize: '13.5px', color: '#a1a1aa', marginBottom: 10 }}>Neon PostgreSQL</p>
+            </div>
+            <div>
+              <p style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.08em', color: '#f7a501', marginBottom: 14, textTransform: 'uppercase' }}>SECURITY</p>
+              <p style={{ fontSize: '13.5px', color: '#a1a1aa', marginBottom: 10 }}>Zero-Surveillance Policy</p>
+              <p style={{ fontSize: '13.5px', color: '#a1a1aa', marginBottom: 10 }}>Apache 2.0 License</p>
+              <p style={{ fontSize: '13.5px', color: '#a1a1aa', marginBottom: 10 }}>Privacy &amp; Terms</p>
+            </div>
           </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-            <a href="https://orka-ten.vercel.app" target="_blank" rel="noreferrer" style={{ color: '#ffffff', textDecoration: 'none' }}>Live App</a>
-            <a href="https://orkapi.onrender.com" target="_blank" rel="noreferrer" style={{ color: '#ffffff', textDecoration: 'none' }}>API Telemetry</a>
-            <a href="https://github.com/kartikthhakur07/Orka" target="_blank" rel="noreferrer" style={{ color: '#ffffff', textDecoration: 'none' }}>GitHub Repo</a>
+          <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+            <span style={{ fontSize: '12.5px', color: '#71717a' }}>© 2026 ORKA Engine · Open-Source Apache 2.0</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '12.5px', color: '#34d399', fontWeight: 600 }}>
+              <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10b981', display: 'inline-block', boxShadow: '0 0 10px rgba(16, 185, 129, 0.6)' }} />
+              <span>All Systems Operational · v2.0.4-prod</span>
+            </div>
           </div>
         </div>
       </footer>

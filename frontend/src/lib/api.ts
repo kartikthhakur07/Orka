@@ -25,10 +25,33 @@ const post = (endpoint: string, data: any) =>
     body: JSON.stringify(data),
   })
 
+const patch = (endpoint: string, data: any) =>
+  fetchWithRetry(`${API}${endpoint}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+
+const del = (endpoint: string) =>
+  fetchWithRetry(`${API}${endpoint}`, {
+    method: 'DELETE',
+  })
+
 export const getDashboard   = ()           => get('/api/dashboard')
 export const assignTask     = (data: any)  => post('/api/tasks/assign', data)
 export const splitTask      = (data: any)  => post('/api/tasks/split', data)
 export const parseTask      = (data: any)  => post('/api/tasks/parse', data)
+export const getTasks       = (params?: { status?: string; priority?: string; search?: string }) => {
+  const query = new URLSearchParams()
+  if (params?.status) query.append('status', params.status)
+  if (params?.priority) query.append('priority', params.priority)
+  if (params?.search) query.append('search', params.search)
+  const qs = query.toString()
+  return get(`/api/tasks${qs ? '?' + qs : ''}`)
+}
+export const createTask     = (data: any)  => post('/api/tasks', data)
+export const updateTask     = (id: number, data: any) => patch(`/api/tasks/${id}`, data)
+export const deleteTask     = (id: number) => del(`/api/tasks/${id}`)
 export const getSprint      = ()           => get('/api/sprint')
 export const generateSprint = (data: any)  => post('/api/sprint/generate', data)
 export const getBurnout     = ()           => get('/api/burnout')
@@ -36,8 +59,10 @@ export const getWFH         = ()           => get('/api/wfh')
 export const getDeadline    = ()           => get('/api/deadline')
 export const askCopilot     = (data: any)  => post('/api/copilot', data)
 export const getTeam        = ()           => get('/api/team')
+export const createMember   = (data: any)  => post('/api/team', data)
 export const buildTeam      = (data: any)  => post('/api/team/build', data)
 export const getProductivity= ()           => get('/api/productivity')
+export const getAnalytics   = ()           => get('/api/analytics')
 export const getSkillGap    = (skills?: string) =>
   get(`/api/skill-gap${skills ? '?project_skills=' + encodeURIComponent(skills) : ''}`)
 export const getHealthScore = ()           => get('/api/health-score')

@@ -2,9 +2,15 @@
 
 import json
 import math
+import os
 import random
+import urllib.error
+import urllib.request
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
+from dotenv import load_dotenv
+
+load_dotenv()
 
 import uvicorn
 from fastapi import Depends, FastAPI, HTTPException, Query
@@ -15,14 +21,26 @@ from sqlalchemy.orm import Session
 from database import create_tables, get_db, seed_database
 from model import Project, Sprint, Task, TeamMember, WorkDNA, User
 
+from contextlib import asynccontextmanager
+
 # ---------------------------------------------------------------------------
-# App setup
+# Lifespan Database Initialization
 # ---------------------------------------------------------------------------
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    try:
+        create_tables()
+        seed_database()
+    except Exception as e:
+        print(f"[ORKA] Database initialization notice: {e}")
+    yield
 
 app = FastAPI(
     title="ORKA v2 API",
     description="AI-powered Project Management Platform Backend",
     version="2.0.0",
+    lifespan=lifespan,
 )
 
 app.add_middleware(
@@ -33,23 +51,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-# ---------------------------------------------------------------------------
-# Database Initialization
-# ---------------------------------------------------------------------------
-
-try:
-    create_tables()
-    seed_database()
-except Exception as e:
-    print(f"[ORKA] Database initialization notice: {e}")
-
-
-@app.on_event("startup")
-def on_startup():
-    create_tables()
-    seed_database()
 
 
 # ---------------------------------------------------------------------------
@@ -88,6 +89,44 @@ class TeamBuildRequest(BaseModel):
 
 class RebalanceRequest(BaseModel):
     trigger_member: str
+
+
+class TaskCreateRequest(BaseModel):
+    title: str
+    required_skills: List[str] = []
+    priority: str = "medium"
+    status: str = "todo"
+    assigned_to: Optional[str] = None
+    complexity: int = 5
+    estimated_hours: float = 4.0
+    deadline_days: int = 7
+
+
+class TaskUpdateRequest(BaseModel):
+    title: Optional[str] = None
+    status: Optional[str] = None
+    priority: Optional[str] = None
+    assigned_to: Optional[str] = None
+
+
+class TeamMemberCreateRequest(BaseModel):
+    name: str
+    role: str
+    skills: List[str] = []
+    workload: int = 50
+    availability: float = 8.0
+    performance_rating: float = 85.0
+    stress_score: float = 40.0
+    focus_hours: float = 5.0
+    meeting_load: float = 3.0
+    context_switches: float = 4.0
+    wfh_score: float = 65.0
+    commute_distance: float = 12.0
+    overtime: str = "No"
+    work_life_balance: int = 3
+    job_satisfaction: int = 3
+    env_satisfaction: int = 3
+    job_involvement: int = 3
 
 
 # ---------------------------------------------------------------------------
@@ -129,28 +168,44 @@ def get_risk_level(burnout_score: float) -> str:
         return "critical"
 
 
-def compute_ibm_burnout_score(member: TeamMember) -> float:
+def compute_ibm_burnout_score(m: Any) -> float:
     """
-    Compute burnout & attrition risk score (0-100) using IBM HR Analytics metrics.
-    Factors: WorkLifeBalance (1-4), JobSatisfaction (1-4), EnvironmentSatisfaction (1-4), JobInvolvement (1-4), OverTime (Yes/No).
+    Compute burnout & attrition risk score (0-100) using multi-factor operational signals.
+    Formula:
+      0.35 * workload_pct +
+      0.25 * min(overtime_hrs / 15, 1) * 100 +
+      0.15 * min(meetings_per_week / 25, 1) * 100 +
+      0.15 * (1 - min(focus_hrs / 6, 1)) * 100 +
+      0.10 * (1 - min(leaves_taken / 8, 1)) * 100
     """
-    wlb = getattr(member, 'work_life_balance', 3)
-    job_sat = getattr(member, 'job_satisfaction', 3)
-    env_sat = getattr(member, 'env_satisfaction', 3)
-    invol = getattr(member, 'job_involvement', 3)
-    overtime_val = getattr(member, 'overtime', 'No')
+    workload_pct = float(getattr(m, 'workload_pct', getattr(m, 'workload', 50.0)))
+    overtime_hrs = float(getattr(m, 'overtime_hrs', 10.0 if getattr(m, 'overtime', 'No') == 'Yes' else 2.0))
+    meetings_per_week = float(getattr(m, 'meetings_per_week', getattr(m, 'meeting_load', 3.0) * 5))
+    focus_hrs = float(getattr(m, 'focus_hrs', getattr(m, 'focus_hours', 4.0)))
+    leaves_taken = float(getattr(m, 'leaves_taken', 2.0))
 
-    wlb_risk = ((5 - wlb) / 4.0) * 35
-    job_sat_risk = ((5 - job_sat) / 4.0) * 25
-    env_sat_risk = ((5 - env_sat) / 4.0) * 20
-    invol_risk = ((5 - invol) / 4.0) * 10
-    ot_risk = 15.0 if overtime_val == 'Yes' else 0.0
+    s = (
+        0.35 * workload_pct +
+        0.25 * min(overtime_hrs / 15.0, 1.0) * 100.0 +
+        0.15 * min(meetings_per_week / 25.0, 1.0) * 100.0 +
+        0.15 * (1.0 - min(focus_hrs / 6.0, 1.0)) * 100.0 +
+        0.10 * (1.0 - min(leaves_taken / 8.0, 1.0)) * 100.0
+    )
+    return round(min(100.0, max(0.0, s)), 1)
 
-    calculated = wlb_risk + job_sat_risk + env_sat_risk + invol_risk + ot_risk
-    # Blend with member's existing burnout score if non-zero
-    base_burnout = member.burnout_score if member.burnout_score > 0 else calculated
-    final_score = round((calculated * 0.6) + (base_burnout * 0.4), 1)
-    return min(100.0, max(0.0, final_score))
+
+def burnout_score(m: Any):
+    """Return rounded score and risk level (healthy, watch, warning, critical)."""
+    s = compute_ibm_burnout_score(m)
+    if s >= 80:
+        level = "critical"
+    elif s >= 65:
+        level = "warning"
+    elif s >= 50:
+        level = "watch"
+    else:
+        level = "healthy"
+    return round(s), level
 
 
 def compute_wfh_score(member: TeamMember) -> float:
@@ -179,27 +234,92 @@ def wfh_decision_and_days(score: float):
         return "Office preferred", []
 
 
+def compute_assignment_factors(
+    member: TeamMember,
+    member_skills: List[str],
+    required_skills: List[str],
+    deadline_days: int,
+    complexity: int = 5,
+    priority: str = "medium"
+) -> Dict[str, Any]:
+    """
+    Computes normalized 0-100 factor breakdown and overall score.
+    S = w1*SkillMatch + w2*WorkloadHeadroom + w3*Availability + w4*BurnoutSafety + w5*DeadlineFit
+    """
+    skill_score = skill_match_score(member_skills, required_skills)
+    availability_score = min(100.0, (member.availability / 8.0) * 100)
+    workload_headroom = max(0.0, 100.0 - member.workload)
+
+    ibm_burnout = compute_ibm_burnout_score(member)
+    effective_burnout = (member.burnout_score * 0.4) + (ibm_burnout * 0.6) if member.burnout_score > 0 else ibm_burnout
+    burnout_safety = max(0.0, 100.0 - effective_burnout)
+
+    # Deadline fit based on complexity vs deadline window
+    est_hours = complexity * 1.5
+    needed_days = max(1.0, est_hours / (max(1.0, member.availability)))
+    if deadline_days >= needed_days:
+        deadline_fit = 100.0
+    else:
+        deadline_fit = max(10.0, round((deadline_days / needed_days) * 100, 1))
+
+    # Dynamic weights by priority
+    if priority in ("critical", "urgent"):
+        w_skill, w_workload, w_avail, w_burnout, w_deadline = 0.25, 0.20, 0.30, 0.10, 0.15
+    else:
+        w_skill, w_workload, w_avail, w_burnout, w_deadline = 0.30, 0.20, 0.20, 0.20, 0.10
+
+    total = (
+        skill_score * w_skill +
+        workload_headroom * w_workload +
+        availability_score * w_avail +
+        burnout_safety * w_burnout +
+        deadline_fit * w_deadline
+    )
+
+    # Check hard eligibility constraints
+    eligible = True
+    exclusion_reason = None
+    if effective_burnout >= 75.0:
+        eligible = False
+        exclusion_reason = f"Critical burnout risk ({round(effective_burnout, 1)}/100) — excluded to prevent turnover"
+    elif member.workload >= 95.0:
+        eligible = False
+        exclusion_reason = f"Member at maximum capacity ({member.workload}%)"
+
+    reason_codes = []
+    if skill_score >= 80:
+        reason_codes.append("HIGH_SKILL_MATCH")
+    if workload_headroom >= 50:
+        reason_codes.append("CAPACITY_AVAILABLE")
+    if burnout_safety >= 60:
+        reason_codes.append("BURNOUT_SAFE")
+    if deadline_fit >= 80:
+        reason_codes.append("DEADLINE_FEASIBLE")
+
+    return {
+        "score": round(total, 2),
+        "eligible": eligible,
+        "exclusion_reason": exclusion_reason,
+        "reason_codes": reason_codes,
+        "factors": {
+            "skill_match": round(skill_score, 1),
+            "workload_headroom": round(workload_headroom, 1),
+            "availability": round(availability_score, 1),
+            "burnout_safety": round(burnout_safety, 1),
+            "deadline_fit": round(deadline_fit, 1)
+        }
+    }
+
+
 def compute_assignment_score(
     member: TeamMember,
     member_skills: List[str],
     required_skills: List[str],
     deadline_days: int,
 ) -> float:
-    """Weighted assignment score (0-100)."""
-    skill_score = skill_match_score(member_skills, required_skills)
-    availability_score = (member.availability / 8.0) * 100
-    workload_score = 100 - member.workload
-    performance_score = member.performance_rating
-    urgency = max(0, 100 - deadline_days * 5)  # more urgent = higher bonus
-
-    total = (
-        skill_score * 0.35
-        + availability_score * 0.25
-        + workload_score * 0.20
-        + performance_score * 0.15
-        + urgency * 0.05
-    )
-    return round(total, 2)
+    """Backward compatible wrapper returning overall float score."""
+    res = compute_assignment_factors(member, member_skills, required_skills, deadline_days)
+    return res["score"]
 
 
 def build_assign_reason(
@@ -687,18 +807,44 @@ def assign_task(request: TaskAssignRequest, db: Session = Depends(get_db)):
     if not members:
         raise HTTPException(status_code=404, detail="No team members found")
 
-    scores = []
+    evaluated = []
+    excluded = []
+
     for m in members:
         m_skills = parse_skills(m.skills)
-        score = compute_assignment_score(m, m_skills, request.required_skills, request.deadline_days)
-        scores.append((m, score, m_skills))
+        fact = compute_assignment_factors(
+            m, m_skills, request.required_skills, request.deadline_days, request.complexity, request.priority
+        )
+        if fact["eligible"]:
+            evaluated.append((m, fact, m_skills))
+        else:
+            excluded.append({
+                "name": m.name,
+                "role": m.role,
+                "reason": fact["exclusion_reason"],
+                "burnout_score": m.burnout_score,
+                "workload": m.workload
+            })
 
-    scores.sort(key=lambda x: x[1], reverse=True)
-    best_member, best_score, best_skills = scores[0]
-    backup_member = scores[1][0] if len(scores) > 1 else None
+    # If no member is strictly eligible, fall back to evaluating all members
+    if not evaluated:
+        for m in members:
+            m_skills = parse_skills(m.skills)
+            fact = compute_assignment_factors(
+                m, m_skills, request.required_skills, request.deadline_days, request.complexity, request.priority
+            )
+            evaluated.append((m, fact, m_skills))
+        excluded = []
 
+    evaluated.sort(key=lambda x: x[1]["score"], reverse=True)
+    best_member, best_fact, best_skills = evaluated[0]
+    backup_member = evaluated[1][0] if len(evaluated) > 1 else None
+
+    best_score = best_fact["score"]
     confidence = min(100, int(best_score))
     reasons = build_assign_reason(best_member, best_skills, request.required_skills, best_score)
+
+    requires_approval = request.priority in ("critical", "urgent") or best_score < 60.0 or len(excluded) > 0
 
     # Persist the task
     new_task = Task(
@@ -724,11 +870,13 @@ def assign_task(request: TaskAssignRequest, db: Session = Depends(get_db)):
     all_scores = [
         {
             "name": m.name,
-            "score": round(sc, 2),
+            "score": round(fact["score"], 2),
+            "factors": fact["factors"],
             "skills": parse_skills(m.skills),
             "workload": m.workload,
+            "reason_codes": fact["reason_codes"]
         }
-        for m, sc, _ in scores
+        for m, fact, _ in evaluated
     ]
 
     return {
@@ -742,10 +890,146 @@ def assign_task(request: TaskAssignRequest, db: Session = Depends(get_db)):
         "assigned_to": best_member.name,
         "assigned_role": best_member.role,
         "confidence": confidence,
+        "factors": best_fact["factors"],
+        "reason_codes": best_fact["reason_codes"],
         "reason": reasons,
         "backup": backup_member.name if backup_member else None,
+        "requires_manager_approval": requires_approval,
         "all_scores": all_scores,
+        "excluded_candidates": excluded,
     }
+
+
+# ---------------------------------------------------------------------------
+# Task Management & History Endpoints (GET, POST, PATCH, DELETE /api/tasks)
+# ---------------------------------------------------------------------------
+
+@app.get("/api/tasks")
+def get_tasks(
+    status: Optional[str] = None,
+    priority: Optional[str] = None,
+    search: Optional[str] = None,
+    db: Session = Depends(get_db)
+):
+    query = db.query(Task)
+    if status and status.lower() != "all":
+        query = query.filter(Task.status == status.lower())
+    if priority and priority.lower() != "all":
+        query = query.filter(Task.priority == priority.lower())
+    if search:
+        search_filter = f"%{search.lower()}%"
+        query = query.filter(Task.title.ilike(search_filter) | Task.assigned_to.ilike(search_filter))
+
+    tasks = query.order_by(Task.id.desc()).all()
+    result = []
+    for t in tasks:
+        result.append({
+            "id": t.id,
+            "title": t.title,
+            "required_skills": parse_skills(t.required_skills),
+            "priority": t.priority,
+            "status": t.status,
+            "assigned_to": t.assigned_to,
+            "assignment_score": t.assignment_score,
+            "confidence": t.confidence,
+            "estimated_hours": t.estimated_hours,
+            "complexity": t.complexity,
+            "deadline_days": t.deadline_days,
+            "created_at": t.created_at.isoformat() if t.created_at else None,
+        })
+    return {
+        "tasks": result,
+        "total": len(result),
+        "status_counts": {
+            "todo": sum(1 for t in tasks if t.status == "todo"),
+            "in-progress": sum(1 for t in tasks if t.status == "in-progress"),
+            "done": sum(1 for t in tasks if t.status == "done"),
+        }
+    }
+
+
+@app.post("/api/tasks")
+def create_task(req: TaskCreateRequest, db: Session = Depends(get_db)):
+    assigned_name = req.assigned_to
+    score = 80.0
+    conf = 85.0
+
+    # If no assignee provided, auto-assign to best available member
+    if not assigned_name:
+        members = db.query(TeamMember).all()
+        if members:
+            best_m = min(members, key=lambda m: m.workload)
+            assigned_name = best_m.name
+            best_m.workload = min(100, best_m.workload + 4)
+
+    new_t = Task(
+        title=req.title,
+        required_skills=json.dumps(req.required_skills),
+        priority=req.priority.lower(),
+        status=req.status.lower(),
+        assigned_to=assigned_name,
+        assignment_score=score,
+        confidence=conf,
+        estimated_hours=req.estimated_hours,
+        complexity=req.complexity,
+        deadline_days=req.deadline_days,
+        created_at=datetime.now(),
+    )
+    db.add(new_t)
+    db.commit()
+    db.refresh(new_t)
+    return {
+        "success": True,
+        "task": {
+            "id": new_t.id,
+            "title": new_t.title,
+            "required_skills": req.required_skills,
+            "priority": new_t.priority,
+            "status": new_t.status,
+            "assigned_to": new_t.assigned_to,
+            "estimated_hours": new_t.estimated_hours,
+            "deadline_days": new_t.deadline_days,
+        }
+    }
+
+
+@app.patch("/api/tasks/{task_id}")
+def update_task(task_id: int, req: TaskUpdateRequest, db: Session = Depends(get_db)):
+    t = db.query(Task).filter(Task.id == task_id).first()
+    if not t:
+        raise HTTPException(status_code=404, detail="Task not found")
+
+    if req.title is not None:
+        t.title = req.title
+    if req.status is not None:
+        t.status = req.status.lower()
+    if req.priority is not None:
+        t.priority = req.priority.lower()
+    if req.assigned_to is not None:
+        t.assigned_to = req.assigned_to
+
+    db.commit()
+    db.refresh(t)
+    return {
+        "success": True,
+        "task": {
+            "id": t.id,
+            "title": t.title,
+            "status": t.status,
+            "priority": t.priority,
+            "assigned_to": t.assigned_to,
+        }
+    }
+
+
+@app.delete("/api/tasks/{task_id}")
+def delete_task(task_id: int, db: Session = Depends(get_db)):
+    t = db.query(Task).filter(Task.id == task_id).first()
+    if not t:
+        raise HTTPException(status_code=404, detail="Task not found")
+    db.delete(t)
+    db.commit()
+    return {"success": True, "deleted_id": task_id}
 
 
 # ---------------------------------------------------------------------------
@@ -1033,6 +1317,88 @@ def get_deadline(db: Session = Depends(get_db)):
     }
 
 
+def call_groq_copilot(question: str, members: List[TeamMember], projects: List[Project], tasks: List[Task]) -> Optional[Dict[str, str]]:
+    groq_api_key = os.getenv("GROQ_API_KEY")
+    if not groq_api_key:
+        return None
+
+    url = "https://api.groq.com/openai/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {groq_api_key}",
+        "Content-Type": "application/json",
+        "User-Agent": "ORKA-v2-Backend/2.0"
+    }
+
+    team_summary = [
+        {
+            "name": m.name,
+            "role": m.role,
+            "workload_pct": m.workload,
+            "availability_hours": m.availability,
+            "burnout_score": m.burnout_score,
+            "performance_rating": m.performance_rating,
+            "skills": parse_skills(m.skills),
+            "meeting_load": m.meeting_load,
+            "wfh_score": m.wfh_score
+        }
+        for m in members
+    ]
+
+    project_summary = [
+        {
+            "name": p.name,
+            "status": p.status,
+            "risk_score": p.risk_score,
+            "health_score": p.health_score,
+            "deadline_days": p.deadline_days,
+            "tasks_remaining": p.tasks_total - p.tasks_done,
+            "velocity": p.velocity
+        }
+        for p in projects
+    ]
+
+    context_payload = {
+        "team_members": team_summary,
+        "projects": project_summary,
+        "total_active_tasks": sum(1 for t in tasks if t.status == "in-progress")
+    }
+
+    system_prompt = (
+        "You are ORKA Copilot, an enterprise AI Decision Engine for engineering teams.\n"
+        "Your responses must be BOTH Data-Oriented and Product-Oriented:\n"
+        "1. DATA-ORIENTED: Base all answers strictly on the exact metrics (workloads, burnout scores, deadline days, skills, velocity) in the provided context.\n"
+        "2. PRODUCT-ORIENTED: Turn raw numbers into clear, explainable, executive recommendations for engineering managers (e.g. task rebalancing, WFH scheduling, deadline mitigation).\n"
+        "3. DO NOT hallucinate team members, projects, or metrics not present in the context.\n"
+        "4. Keep answers concise, professional, and formatted in markdown."
+    )
+
+    payload = {
+        "model": "llama-3.3-70b-versatile",
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": f"Real-Time Telemetry Context:\n{json.dumps(context_payload, indent=2)}\n\nQuestion: {question}"}
+        ],
+        "temperature": 0.2,
+        "max_tokens": 400
+    }
+
+    try:
+        req = urllib.request.Request(url, data=json.dumps(payload).encode(), headers=headers, method="POST")
+        with urllib.request.urlopen(req, timeout=8) as resp:
+            if resp.status == 200:
+                res_data = json.loads(resp.read().decode())
+                answer_text = res_data["choices"][0]["message"]["content"]
+                return {
+                    "answer": answer_text,
+                    "context_used": f"Groq Llama-3.3-70b grounded on {len(members)} team members and {len(projects)} projects"
+                }
+    except Exception as e:
+        print(f"[ORKA Copilot] Groq API call fallback: {e}")
+        return None
+
+    return None
+
+
 # ---------------------------------------------------------------------------
 # POST /api/copilot
 # ---------------------------------------------------------------------------
@@ -1043,6 +1409,16 @@ def copilot(request: CopilotRequest, db: Session = Depends(get_db)):
     members = db.query(TeamMember).all()
     projects = db.query(Project).all()
     tasks = db.query(Task).all()
+
+    # Try Groq LLM if GROQ_API_KEY environment variable is configured
+    groq_res = call_groq_copilot(request.question, members, projects, tasks)
+    if groq_res:
+        return {
+            "question": request.question,
+            "answer": groq_res["answer"],
+            "context_used": groq_res["context_used"],
+            "timestamp": datetime.now().isoformat(),
+        }
 
     answer = ""
     context_used = ""
@@ -1114,8 +1490,8 @@ def copilot(request: CopilotRequest, db: Session = Depends(get_db)):
         sprint_name = sprint.name if sprint else "Sprint 14"
         answer = (
             f"**{sprint_name}** is {pct}% complete ({done}/{total} tasks done). "
-            f"The sprint spans 5 days with tasks distributed across all 5 team members. "
-            f"Critical items include Payment API endpoints and Production Release by Kartik. "
+            f"The sprint spans 5 days with tasks distributed across the 24 team members. "
+            f"Critical items include Payment API endpoints and Production Release by Alex Rivera. "
             f"Use /api/sprint to see the full day-by-day breakdown."
         )
         context_used = "Sprint and task data"
@@ -1265,6 +1641,115 @@ def get_team(db: Session = Depends(get_db)):
         "total_count": len(members),
         "avg_workload": avg_workload,
         "avg_performance": avg_performance,
+    }
+
+
+@app.post("/api/team")
+def create_team_member(req: TeamMemberCreateRequest, db: Session = Depends(get_db)):
+    existing = db.query(TeamMember).filter(TeamMember.name == req.name).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="Team member with this name already exists")
+
+    new_m = TeamMember(
+        name=req.name,
+        role=req.role,
+        skills=json.dumps(req.skills),
+        workload=req.workload,
+        availability=req.availability,
+        performance_rating=req.performance_rating,
+        stress_score=req.stress_score,
+        focus_hours=req.focus_hours,
+        meeting_load=req.meeting_load,
+        context_switches=req.context_switches,
+        wfh_score=req.wfh_score,
+        commute_distance=req.commute_distance,
+        deep_work_req=70.0,
+        collab_req=50.0,
+        burnout_score=round((req.stress_score * 0.4 + req.workload * 0.4 + req.context_switches * 3.0), 1),
+        productivity_score=req.performance_rating,
+        consistency_score=80.0,
+        focus_score=75.0,
+        delivery_score=85.0,
+        best_hours="9AM-1PM",
+        preferred_task_type=req.role,
+        burnout_triggers=json.dumps(["context switching", "unclear specs"]),
+        wfh_productivity=75.0,
+        work_life_balance=req.work_life_balance,
+        job_satisfaction=req.job_satisfaction,
+        env_satisfaction=req.env_satisfaction,
+        job_involvement=req.job_involvement,
+        overtime=req.overtime,
+        years_at_company=2,
+        years_with_manager=2,
+        monthly_income=9000.0,
+        attrition_label="No",
+    )
+    db.add(new_m)
+    db.commit()
+    db.refresh(new_m)
+    return {
+        "success": True,
+        "member": {
+            "id": new_m.id,
+            "name": new_m.name,
+            "role": new_m.role,
+            "skills": req.skills,
+            "workload": new_m.workload,
+            "burnout_score": new_m.burnout_score,
+        }
+    }
+
+
+# ---------------------------------------------------------------------------
+# Analytics Aggregation Endpoint (GET /api/analytics)
+# ---------------------------------------------------------------------------
+
+@app.get("/api/analytics")
+def get_analytics(db: Session = Depends(get_db)):
+    members = db.query(TeamMember).all()
+    tasks = db.query(Task).all()
+    projects = db.query(Project).all()
+
+    workload_dist = [
+        {"name": m.name, "workload": m.workload, "burnout": m.burnout_score, "performance": m.performance_rating}
+        for m in members
+    ]
+
+    priority_counts = {
+        "critical": sum(1 for t in tasks if t.priority == "critical"),
+        "high": sum(1 for t in tasks if t.priority == "high"),
+        "medium": sum(1 for t in tasks if t.priority == "medium"),
+        "low": sum(1 for t in tasks if t.priority == "low"),
+    }
+
+    status_counts = {
+        "done": sum(1 for t in tasks if t.status == "done"),
+        "in-progress": sum(1 for t in tasks if t.status == "in-progress"),
+        "todo": sum(1 for t in tasks if t.status == "todo"),
+    }
+
+    all_skills = {}
+    for m in members:
+        for s in parse_skills(m.skills):
+            all_skills[s] = all_skills.get(s, 0) + 1
+
+    skill_coverage = [{"skill": k, "engineers": v} for k, v in sorted(all_skills.items(), key=lambda x: -x[1])[:8]]
+
+    project_risks = [
+        {"name": p.name, "risk_score": p.risk_score, "health_score": p.health_score, "velocity": p.velocity}
+        for p in projects
+    ]
+
+    return {
+        "workload_distribution": workload_dist,
+        "priority_breakdown": priority_counts,
+        "status_breakdown": status_counts,
+        "skill_coverage": skill_coverage,
+        "project_risks": project_risks,
+        "total_tasks": len(tasks),
+        "total_members": len(members),
+        "avg_burnout": round(sum(m.burnout_score for m in members) / len(members), 1) if members else 0,
+        "avg_velocity": round(sum(p.velocity for p in projects) / len(projects), 1) if projects else 1.0,
     }
 
 
@@ -1542,9 +2027,9 @@ def rebalance_workload(request: RebalanceRequest, db: Session = Depends(get_db))
 # GET /api/work-dna
 # ---------------------------------------------------------------------------
 
-# Hardcoded rich Work DNA for each member
+# Hardcoded rich Work DNA for key engineering leads
 WORK_DNA_DISPLAY = {
-    "Kartik": {
+    "Alex Rivera": {
         "best_hours": "9AM–12PM",
         "preferred_tasks": "API design, system architecture, security reviews, backend optimisation",
         "collab_style": "Async-first; prefers GitHub comments over Slack; schedules sync calls when needed",
@@ -1552,14 +2037,14 @@ WORK_DNA_DISPLAY = {
         "meeting_tolerance": "Low — max 2 meetings/day; anything more tanks focus",
         "focus_pattern": "Deep 3-hour blocks (9–12) → lunch break → lighter review tasks afternoon",
         "burnout_triggers": "Context switching, unclear requirements, review bottlenecks",
-        "wfh_productivity": 78,
+        "wfh_productivity": 82,
         "dna_summary": (
-            "Kartik is a deep-work specialist who excels in complex backend tasks. "
+            "Alex is a deep-work specialist who excels in complex backend tasks. "
             "He needs protected focus windows and minimal interruptions. "
             "Best assigned to high-complexity, high-stakes tasks in the morning slot."
         ),
     },
-    "Riya": {
+    "Riya Sharma": {
         "best_hours": "10AM–2PM",
         "preferred_tasks": "Model training, data analysis, research spikes, feature engineering",
         "collab_style": "Solo deep worker; shares findings via detailed written docs; async collaboration",
@@ -1567,14 +2052,28 @@ WORK_DNA_DISPLAY = {
         "meeting_tolerance": "Very low — max 1 meeting/day; prefers written async updates",
         "focus_pattern": "4-hour uninterrupted focus sessions; does not respond to Slack during focus",
         "burnout_triggers": "Too many meetings, rushed ML deadlines, noisy open offices",
-        "wfh_productivity": 92,
+        "wfh_productivity": 94,
         "dna_summary": (
             "Riya is the team's highest-focus individual. She thrives on WFH days with 4-hour deep work sessions. "
             "Never schedule her for back-to-back meetings — her best work happens with zero interruptions. "
             "Top candidate for complex ML research tasks."
         ),
     },
-    "Aman": {
+    "Marcus Chen": {
+        "best_hours": "8AM–12PM",
+        "preferred_tasks": "Consensus engines, system architecture, distributed storage, platform scalability",
+        "collab_style": "High-leverage system reviews; RFC-driven; writes detailed architectural blueprints",
+        "coding_speed": "Methodical & rock solid — focuses on edge-case elimination and zero data loss",
+        "meeting_tolerance": "Moderate — handles up to 3 cross-team architectural syncs/day",
+        "focus_pattern": "Early morning 4-hour uninterrupted block; afternoon office hours for tech mentorship",
+        "burnout_triggers": "Ad-hoc architectural pivots, lack of technical documentation, unbudgeted scope",
+        "wfh_productivity": 80,
+        "dna_summary": (
+            "Marcus is the team's distributed systems anchor. He excels at high-concurrency architecture "
+            "and ensures rock-solid operational stability across all squads."
+        ),
+    },
+    "Elena Rostova": {
         "best_hours": "2PM–6PM",
         "preferred_tasks": "UI component building, design implementation, user flow prototyping",
         "collab_style": "Highly collaborative — loves pair programming and design critique sessions",
@@ -1582,14 +2081,14 @@ WORK_DNA_DISPLAY = {
         "meeting_tolerance": "High — enjoys design syncs and stakeholder demos (up to 5/day)",
         "focus_pattern": "Short 1-hour focused bursts; frequent check-ins with designers and PMs",
         "burnout_triggers": "Too many context switches, unclear or late designs, working in isolation",
-        "wfh_productivity": 58,
+        "wfh_productivity": 60,
         "dna_summary": (
-            "Aman is a collaborative creative who performs best in the afternoon. "
-            "He currently has the highest burnout risk and needs workload relief immediately. "
-            "Prefers in-office or hybrid for design collaboration; WFH reduces his productivity."
+            "Elena is a collaborative creative who performs best in the afternoon. "
+            "She currently has high workload strain (84/100) and needs priority rebalancing. "
+            "Prefers in-office or hybrid for design collaboration; WFH reduces her productivity."
         ),
     },
-    "Priya": {
+    "David Kim": {
         "best_hours": "8AM–11AM",
         "preferred_tasks": "Infrastructure setup, automation scripting, monitoring & alerting, cloud architecture",
         "collab_style": "Documentation-driven; writes runbooks and shares via Confluence; minimal verbal sync",
@@ -1597,14 +2096,14 @@ WORK_DNA_DISPLAY = {
         "meeting_tolerance": "Moderate — up to 3 focused meetings/day (standups, infra reviews)",
         "focus_pattern": "2-3 hour focused infrastructure blocks; checks alerts and dashboards between",
         "burnout_triggers": "On-call incidents at night, manual repetitive tasks, poor documentation from teammates",
-        "wfh_productivity": 80,
+        "wfh_productivity": 82,
         "dna_summary": (
-            "Priya is the team's reliability anchor — most productive in early morning deep work. "
-            "She automates everything and hates manual toil. "
-            "WFH suits her well; she's most effective when given clear infrastructure goals with minimal ambiguity."
+            "David is the team's reliability anchor — most productive in early morning deep work. "
+            "He automates everything and hates manual toil. "
+            "WFH suits him well; he's most effective when given clear infrastructure goals with minimal ambiguity."
         ),
     },
-    "Hitendra": {
+    "Sarah Jenkins": {
         "best_hours": "11AM–3PM",
         "preferred_tasks": "Full-stack feature delivery, API+UI integration, database schema work",
         "collab_style": "Flexible bridge — communicates well with both frontend and backend teams",
@@ -1612,11 +2111,10 @@ WORK_DNA_DISPLAY = {
         "meeting_tolerance": "Moderate-high — handles up to 4 meetings/day including cross-team syncs",
         "focus_pattern": "2-hour coding blocks followed by team collaboration time in afternoons",
         "burnout_triggers": "Scope creep, context switching between too many projects, accumulating tech debt",
-        "wfh_productivity": 68,
+        "wfh_productivity": 72,
         "dna_summary": (
-            "Hitendra is the team's versatile glue — equally comfortable on frontend and backend. "
-            "He performs best mid-day and can handle cross-functional coordination. "
-            "Currently showing burnout signals (71/100) — avoid adding large new tasks this sprint."
+            "Sarah is the team's versatile glue — equally comfortable on frontend and backend. "
+            "She performs best mid-day and handles cross-functional feature execution seamlessly."
         ),
     },
 }
@@ -1634,13 +2132,13 @@ def get_work_dna(db: Session = Depends(get_db)):
             "role": m.role,
             "best_hours": dna.get("best_hours", m.best_hours),
             "preferred_tasks": dna.get("preferred_tasks", m.preferred_task_type),
-            "collab_style": dna.get("collab_style", ""),
-            "coding_speed": dna.get("coding_speed", ""),
-            "meeting_tolerance": dna.get("meeting_tolerance", ""),
-            "focus_pattern": dna.get("focus_pattern", ""),
-            "burnout_triggers": dna.get("burnout_triggers", ""),
+            "collab_style": dna.get("collab_style", "Async-first with daily standup syncs"),
+            "coding_speed": dna.get("coding_speed", "High velocity, test-driven"),
+            "meeting_tolerance": dna.get("meeting_tolerance", f"Max {int(m.meeting_load)} meetings/day"),
+            "focus_pattern": dna.get("focus_pattern", f"{int(m.focus_hours)} hour focus blocks"),
+            "burnout_triggers": dna.get("burnout_triggers", "Context switching, unclear requirements"),
             "wfh_productivity": dna.get("wfh_productivity", m.wfh_productivity),
-            "dna_summary": dna.get("dna_summary", ""),
+            "dna_summary": dna.get("dna_summary", f"{m.name} is a valued member of the squad specialized in {m.role}."),
         })
 
     return {"members": result}
@@ -1653,12 +2151,12 @@ def get_work_dna(db: Session = Depends(get_db)):
 MEETINGS_DATA = [
     {
         "id": 1,
-        "title": "Daily Status Update — All Hands",
-        "attendees": ["Kartik", "Riya", "Aman", "Priya", "Hitendra"],
+        "title": "Daily Status Update — Engineering Sync",
+        "attendees": ["Alex Rivera", "Riya Sharma", "Elena Rostova", "David Kim", "Sarah Jenkins"],
         "duration_min": 60,
         "verdict": "unnecessary",
         "reason": (
-            "A 60-minute all-hands daily standup with 5 engineers is costing 300 engineer-minutes/day (25 hours/week). "
+            "A 60-minute synchronous daily standup across squad leads is costing 300 engineer-minutes/day (25 hours/week). "
             "This information can be fully captured in a 5-minute async Slack thread. "
             "Convert to written async updates — save 24+ hours of focus time per week."
         ),
@@ -1671,13 +2169,13 @@ MEETINGS_DATA = [
     {
         "id": 2,
         "title": "Payment Module Architecture Review",
-        "attendees": ["Kartik", "Hitendra", "Priya"],
+        "attendees": ["Alex Rivera", "Sarah Jenkins", "David Kim"],
         "duration_min": 90,
         "verdict": "necessary",
         "reason": (
             "The Payment Module is at 82/100 risk with a 5-day deadline. "
-            "Architecture decisions require synchronous alignment between Kartik (backend), "
-            "Hitendra (integration), and Priya (infra/deployment). "
+            "Architecture decisions require synchronous alignment between Alex Rivera (backend), "
+            "Sarah Jenkins (integration), and David Kim (infra/deployment). "
             "This meeting prevents expensive rework later."
         ),
         "converted_tasks": [],
@@ -1685,7 +2183,7 @@ MEETINGS_DATA = [
     {
         "id": 3,
         "title": "Bi-Weekly Sprint Retrospective Prep",
-        "attendees": ["Kartik", "Aman", "Hitendra"],
+        "attendees": ["Alex Rivera", "Elena Rostova", "Sarah Jenkins"],
         "duration_min": 45,
         "verdict": "unnecessary",
         "reason": (
@@ -1695,19 +2193,19 @@ MEETINGS_DATA = [
         ),
         "converted_tasks": [
             "Create shared retro doc in Notion — team adds items async by EOD Thursday",
-            "Assign Aman to summarize top 3 themes before Friday retro",
+            "Assign Elena Rostova to summarize top 3 themes before Friday retro",
         ],
     },
     {
         "id": 4,
         "title": "ML Pipeline Production Deployment Decision",
-        "attendees": ["Riya", "Priya", "Kartik"],
+        "attendees": ["Riya Sharma", "David Kim", "Alex Rivera"],
         "duration_min": 60,
         "verdict": "necessary",
         "reason": (
             "The ML Pipeline is at 71/100 risk with 7 days left. "
             "Deployment strategy, rollback plans, and model versioning require a synchronous decision "
-            "between Riya (ML), Priya (DevOps), and Kartik (API integration). "
+            "between Riya Sharma (ML), David Kim (DevOps), and Alex Rivera (API integration). "
             "Async communication would introduce ambiguity on a high-stakes production rollout."
         ),
         "converted_tasks": [],

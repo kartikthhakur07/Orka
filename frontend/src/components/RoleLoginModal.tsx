@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 interface RoleLoginModalProps {
   isOpen: boolean
   onClose: () => void
+  onRoleSelect?: (name: string, role: string) => void
   onLoginSuccess?: (user: { email: string; name: string; role: string; roleTitle: string; avatar: string }) => void
 }
 
@@ -39,7 +40,7 @@ export const PRESET_ROLES = [
   },
 ]
 
-export function RoleLoginModal({ isOpen, onClose, onLoginSuccess }: RoleLoginModalProps) {
+export function RoleLoginModal({ isOpen, onClose, onRoleSelect, onLoginSuccess }: RoleLoginModalProps) {
   const router = useRouter()
   const [selectedRole, setSelectedRole] = useState<'employee' | 'manager'>('employee')
   const [email, setEmail] = useState('priya.sharma@orka.ai')
@@ -81,6 +82,10 @@ export function RoleLoginModal({ isOpen, onClose, onLoginSuccess }: RoleLoginMod
       if (typeof window !== 'undefined') {
         localStorage.setItem('orka_user', JSON.stringify(userObj))
         window.dispatchEvent(new Event('orka_auth_change'))
+      }
+
+      if (onRoleSelect) {
+        onRoleSelect(userObj.name, userObj.roleTitle)
       }
 
       if (onLoginSuccess) {

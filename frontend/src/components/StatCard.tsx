@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 
-function useCountUp(target: number, duration = 1200) {
+function useCountUp(target: number, duration = 1000) {
   const [val, setVal] = useState(0)
   useEffect(() => {
     if (!target) return
@@ -16,17 +16,6 @@ function useCountUp(target: number, duration = 1200) {
     requestAnimationFrame(step)
   }, [target, duration])
   return val
-}
-
-function getScoreColor(v: number, invertRisk = false): string {
-  if (invertRisk) {
-    if (v > 60) return '#ef4444'
-    if (v > 35) return '#f59e0b'
-    return '#10b981'
-  }
-  if (v >= 75) return '#10b981'
-  if (v >= 45) return '#f59e0b'
-  return '#ef4444'
 }
 
 interface StatCardProps {
@@ -47,92 +36,63 @@ export function StatCard({
   value,
   unit = '',
   icon: Icon,
-  color,
-  delay = 0,
-  invertRisk = false,
+  color = '#4f46e5',
   badge,
 }: StatCardProps) {
   const isNumber = typeof value === 'number'
   const displayed = isNumber ? useCountUp(value as number, 1000) : value
   const numVal = isNumber ? (value as number) : 50
-  const c = color || getScoreColor(numVal, invertRisk)
-
   const cardTitle = title || label || ''
 
   return (
-    <div
-      className="glass-card flex flex-col justify-between animate-fade-in-up p-5"
-      style={{
-        animationDelay: `${delay}ms`,
-        opacity: 0,
-        animationFillMode: 'forwards',
-      }}
-    >
+    <div className="bright-card" style={{ padding: '20px 22px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <span
-          style={{
-            fontSize: 'var(--font-xs)',
-            color: 'var(--text-muted)',
-            fontWeight: 600,
-            letterSpacing: '0.05em',
-            textTransform: 'uppercase',
-          }}
-        >
+        <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--colors-mute)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
           {cardTitle}
         </span>
         {Icon && (
-          <div
-            style={{
-              width: 34,
-              height: 34,
-              borderRadius: 10,
-              background: 'rgba(99, 102, 241, 0.1)',
-              border: '1px solid var(--border-subtle)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Icon size={16} color="var(--accent-primary)" />
+          <div style={{
+            width: 34,
+            height: 34,
+            borderRadius: 'var(--rounded-md)',
+            background: 'var(--colors-surface-soft)',
+            color: 'var(--colors-ink)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            border: '1px solid var(--colors-hairline-soft)'
+          }}>
+            <Icon size={17} />
           </div>
         )}
       </div>
 
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, margin: '14px 0 10px' }}>
-        <span
-          style={{
-            fontSize: 'var(--font-lg)',
-            fontWeight: 800,
-            color: 'var(--text-primary)',
-            lineHeight: 1,
-            letterSpacing: '-0.02em',
-          }}
-        >
+        <span style={{ fontSize: '32px', fontWeight: 800, color: 'var(--colors-ink)', lineHeight: 1, letterSpacing: '-0.6px' }}>
           {displayed}
         </span>
         {unit && (
-          <span style={{ fontSize: 'var(--font-sm)', color: 'var(--text-muted)', fontWeight: 500 }}>
+          <span style={{ fontSize: '14px', color: 'var(--colors-mute)', fontWeight: 600 }}>
             {unit}
           </span>
         )}
       </div>
 
       {badge ? (
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <span className={`badge badge-${badge.variant}`}>
+        <div>
+          <span className="badge-posthog badge-yellow" style={{ fontSize: '11px' }}>
             {badge.text}
           </span>
         </div>
       ) : (
-        <div className="score-bar">
-          <div
-            className="score-bar-fill"
-            style={{
-              '--target-width': `${Math.min(numVal, 100)}%`,
-              '--delay': `${delay}ms`,
-              background: `linear-gradient(90deg, var(--accent-primary)70, var(--accent-primary))`,
-            } as any}
-          />
+        <div style={{ height: 5, width: '100%', background: 'var(--colors-surface-soft)', borderRadius: 999, overflow: 'hidden', marginTop: 4 }}>
+          <div style={{
+            height: '100%',
+            width: `${Math.min(numVal, 100)}%`,
+            background: 'var(--colors-primary)',
+            borderRadius: 999,
+            transition: 'width 1s ease-out'
+          }} />
         </div>
       )}
     </div>
@@ -140,4 +100,3 @@ export function StatCard({
 }
 
 export default StatCard
-

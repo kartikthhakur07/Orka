@@ -137,3 +137,52 @@ def test_nlp_task_parser_endpoint():
     assert "description" in data
     assert "extracted_skills" in data
     assert len(data["extracted_skills"]) > 0
+
+
+def test_tasks_crud_endpoints():
+    """Test GET and POST /api/tasks endpoints."""
+    # Create task
+    create_payload = {
+        "title": "Build Automated Unit Test Suite",
+        "required_skills": ["Python", "FastAPI"],
+        "priority": "high",
+        "complexity": 5,
+        "deadline_days": 3
+    }
+    res_create = client.post("/api/tasks", json=create_payload)
+    assert res_create.status_code == 200
+    data_create = res_create.json()
+    assert data_create["success"] is True
+    task_id = data_create["task"]["id"]
+
+    # Read tasks
+    res_get = client.get("/api/tasks")
+    assert res_get.status_code == 200
+    data_get = res_get.json()
+    assert "tasks" in data_get
+    assert len(data_get["tasks"]) > 0
+
+    # Patch task
+    res_patch = client.patch(f"/api/tasks/{task_id}", json={"status": "in-progress"})
+    assert res_patch.status_code == 200
+    assert res_patch.json()["task"]["status"] == "in-progress"
+
+    # Delete task
+    res_del = client.delete(f"/api/tasks/{task_id}")
+    assert res_del.status_code == 200
+    assert res_del.json()["success"] is True
+
+
+def test_analytics_endpoint():
+    """Test GET /api/analytics endpoint."""
+    response = client.get("/api/analytics")
+    assert response.status_code == 200
+    data = response.json()
+
+    assert "workload_distribution" in data
+    assert "priority_breakdown" in data
+    assert "status_breakdown" in data
+    assert "skill_coverage" in data
+    assert "project_risks" in data
+    assert data["total_tasks"] > 0
+
