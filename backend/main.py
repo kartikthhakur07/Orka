@@ -2031,118 +2031,41 @@ def rebalance_workload(request: RebalanceRequest, db: Session = Depends(get_db))
 # GET /api/work-dna
 # ---------------------------------------------------------------------------
 
-# Hardcoded rich Work DNA for key engineering leads
-WORK_DNA_DISPLAY = {
-    "Alex Rivera": {
-        "best_hours": "9AM–12PM",
-        "preferred_tasks": "API design, system architecture, security reviews, backend optimisation",
-        "collab_style": "Async-first; prefers GitHub comments over Slack; schedules sync calls when needed",
-        "coding_speed": "Methodical — high-quality code, slightly lower velocity, rarely introduces bugs",
-        "meeting_tolerance": "Low — max 2 meetings/day; anything more tanks focus",
-        "focus_pattern": "Deep 3-hour blocks (9–12) → lunch break → lighter review tasks afternoon",
-        "burnout_triggers": "Context switching, unclear requirements, review bottlenecks",
-        "wfh_productivity": 82,
-        "dna_summary": (
-            "Alex is a deep-work specialist who excels in complex backend tasks. "
-            "He needs protected focus windows and minimal interruptions. "
-            "Best assigned to high-complexity, high-stakes tasks in the morning slot."
-        ),
-    },
-    "Riya Sharma": {
-        "best_hours": "10AM–2PM",
-        "preferred_tasks": "Model training, data analysis, research spikes, feature engineering",
-        "collab_style": "Solo deep worker; shares findings via detailed written docs; async collaboration",
-        "coding_speed": "Experimental — iterates rapidly on models, runs parallel experiments",
-        "meeting_tolerance": "Very low — max 1 meeting/day; prefers written async updates",
-        "focus_pattern": "4-hour uninterrupted focus sessions; does not respond to Slack during focus",
-        "burnout_triggers": "Too many meetings, rushed ML deadlines, noisy open offices",
-        "wfh_productivity": 94,
-        "dna_summary": (
-            "Riya is the team's highest-focus individual. She thrives on WFH days with 4-hour deep work sessions. "
-            "Never schedule her for back-to-back meetings — her best work happens with zero interruptions. "
-            "Top candidate for complex ML research tasks."
-        ),
-    },
-    "Marcus Chen": {
-        "best_hours": "8AM–12PM",
-        "preferred_tasks": "Consensus engines, system architecture, distributed storage, platform scalability",
-        "collab_style": "High-leverage system reviews; RFC-driven; writes detailed architectural blueprints",
-        "coding_speed": "Methodical & rock solid — focuses on edge-case elimination and zero data loss",
-        "meeting_tolerance": "Moderate — handles up to 3 cross-team architectural syncs/day",
-        "focus_pattern": "Early morning 4-hour uninterrupted block; afternoon office hours for tech mentorship",
-        "burnout_triggers": "Ad-hoc architectural pivots, lack of technical documentation, unbudgeted scope",
-        "wfh_productivity": 80,
-        "dna_summary": (
-            "Marcus is the team's distributed systems anchor. He excels at high-concurrency architecture "
-            "and ensures rock-solid operational stability across all squads."
-        ),
-    },
-    "Elena Rostova": {
-        "best_hours": "2PM–6PM",
-        "preferred_tasks": "UI component building, design implementation, user flow prototyping",
-        "collab_style": "Highly collaborative — loves pair programming and design critique sessions",
-        "coding_speed": "Fast on familiar React/Next.js patterns; slower when venturing into new frameworks",
-        "meeting_tolerance": "High — enjoys design syncs and stakeholder demos (up to 5/day)",
-        "focus_pattern": "Short 1-hour focused bursts; frequent check-ins with designers and PMs",
-        "burnout_triggers": "Too many context switches, unclear or late designs, working in isolation",
-        "wfh_productivity": 60,
-        "dna_summary": (
-            "Elena is a collaborative creative who performs best in the afternoon. "
-            "She currently has high workload strain (84/100) and needs priority rebalancing. "
-            "Prefers in-office or hybrid for design collaboration; WFH reduces her productivity."
-        ),
-    },
-    "David Kim": {
-        "best_hours": "8AM–11AM",
-        "preferred_tasks": "Infrastructure setup, automation scripting, monitoring & alerting, cloud architecture",
-        "collab_style": "Documentation-driven; writes runbooks and shares via Confluence; minimal verbal sync",
-        "coding_speed": "Steady and reliable — strong automation focus, scripts everything repetitive",
-        "meeting_tolerance": "Moderate — up to 3 focused meetings/day (standups, infra reviews)",
-        "focus_pattern": "2-3 hour focused infrastructure blocks; checks alerts and dashboards between",
-        "burnout_triggers": "On-call incidents at night, manual repetitive tasks, poor documentation from teammates",
-        "wfh_productivity": 82,
-        "dna_summary": (
-            "David is the team's reliability anchor — most productive in early morning deep work. "
-            "He automates everything and hates manual toil. "
-            "WFH suits him well; he's most effective when given clear infrastructure goals with minimal ambiguity."
-        ),
-    },
-    "Sarah Jenkins": {
-        "best_hours": "11AM–3PM",
-        "preferred_tasks": "Full-stack feature delivery, API+UI integration, database schema work",
-        "collab_style": "Flexible bridge — communicates well with both frontend and backend teams",
-        "coding_speed": "Good velocity across the full stack; adapts to changing requirements",
-        "meeting_tolerance": "Moderate-high — handles up to 4 meetings/day including cross-team syncs",
-        "focus_pattern": "2-hour coding blocks followed by team collaboration time in afternoons",
-        "burnout_triggers": "Scope creep, context switching between too many projects, accumulating tech debt",
-        "wfh_productivity": 72,
-        "dna_summary": (
-            "Sarah is the team's versatile glue — equally comfortable on frontend and backend. "
-            "She performs best mid-day and handles cross-functional feature execution seamlessly."
-        ),
-    },
-}
-
-
 @app.get("/api/work-dna")
 def get_work_dna(db: Session = Depends(get_db)):
     members = db.query(TeamMember).all()
+    dna_map = {d.member_id: d for d in db.query(WorkDNA).all()}
 
     result = []
     for m in members:
-        dna = WORK_DNA_DISPLAY.get(m.name, {})
+        dna = dna_map.get(m.id)
+        best_hours = dna.best_hours if (dna and dna.best_hours) else (m.best_hours or "9AM–12PM")
+        pref_tasks = dna.preferred_tasks if (dna and dna.preferred_tasks) else (m.preferred_task_type or "Engineering Tasks")
+        collab = dna.collab_style if (dna and dna.collab_style) else "Async-first with daily standup syncs"
+        speed = dna.coding_speed if (dna and dna.coding_speed) else "High velocity, test-driven"
+        meeting_tol = dna.meeting_tolerance if (dna and dna.meeting_tolerance) else f"Max {int(m.meeting_load)} meetings/day"
+        focus_pat = dna.focus_pattern if (dna and dna.focus_pattern) else f"{int(m.focus_hours)} hour focus blocks"
+        triggers = dna.burnout_triggers if (dna and dna.burnout_triggers) else (m.burnout_triggers or "Context switching, unclear requirements")
+        wfh_prod = dna.wfh_productivity if (dna and dna.wfh_productivity) else (m.wfh_productivity or 80.0)
+
+        summary = (
+            f"{m.name} is a {m.role} specialized in {pref_tasks}. "
+            f"Operates best with {focus_pat} and {collab.lower()}. "
+            f"Maintains {int(wfh_prod)}% productivity on remote days."
+        )
+
         result.append({
             "name": m.name,
             "role": m.role,
-            "best_hours": dna.get("best_hours", m.best_hours),
-            "preferred_tasks": dna.get("preferred_tasks", m.preferred_task_type),
-            "collab_style": dna.get("collab_style", "Async-first with daily standup syncs"),
-            "coding_speed": dna.get("coding_speed", "High velocity, test-driven"),
-            "meeting_tolerance": dna.get("meeting_tolerance", f"Max {int(m.meeting_load)} meetings/day"),
-            "focus_pattern": dna.get("focus_pattern", f"{int(m.focus_hours)} hour focus blocks"),
-            "burnout_triggers": dna.get("burnout_triggers", "Context switching, unclear requirements"),
-            "wfh_productivity": dna.get("wfh_productivity", m.wfh_productivity),
-            "dna_summary": dna.get("dna_summary", f"{m.name} is a valued member of the squad specialized in {m.role}."),
+            "best_hours": best_hours,
+            "preferred_tasks": pref_tasks,
+            "collab_style": collab,
+            "coding_speed": speed,
+            "meeting_tolerance": meeting_tol,
+            "focus_pattern": focus_pat,
+            "burnout_triggers": triggers,
+            "wfh_productivity": round(wfh_prod, 1),
+            "dna_summary": summary,
         })
 
     return {"members": result}
@@ -2152,87 +2075,61 @@ def get_work_dna(db: Session = Depends(get_db)):
 # GET /api/meetings
 # ---------------------------------------------------------------------------
 
-MEETINGS_DATA = [
-    {
-        "id": 1,
-        "title": "Daily Status Update — Engineering Sync",
-        "attendees": ["Alex Rivera", "Riya Sharma", "Elena Rostova", "David Kim", "Sarah Jenkins"],
-        "duration_min": 60,
-        "verdict": "unnecessary",
-        "reason": (
-            "A 60-minute synchronous daily standup across squad leads is costing 300 engineer-minutes/day (25 hours/week). "
-            "This information can be fully captured in a 5-minute async Slack thread. "
-            "Convert to written async updates — save 24+ hours of focus time per week."
-        ),
-        "converted_tasks": [
-            "Create daily async standup Slack channel with status update template",
-            "Set up automated GitHub PR digest to replace manual updates",
-            "Schedule weekly 30-min sync for blockers only",
-        ],
-    },
-    {
-        "id": 2,
-        "title": "Payment Module Architecture Review",
-        "attendees": ["Alex Rivera", "Sarah Jenkins", "David Kim"],
-        "duration_min": 90,
-        "verdict": "necessary",
-        "reason": (
-            "The Payment Module is at 82/100 risk with a 5-day deadline. "
-            "Architecture decisions require synchronous alignment between Alex Rivera (backend), "
-            "Sarah Jenkins (integration), and David Kim (infra/deployment). "
-            "This meeting prevents expensive rework later."
-        ),
-        "converted_tasks": [],
-    },
-    {
-        "id": 3,
-        "title": "Bi-Weekly Sprint Retrospective Prep",
-        "attendees": ["Alex Rivera", "Elena Rostova", "Sarah Jenkins"],
-        "duration_min": 45,
-        "verdict": "unnecessary",
-        "reason": (
-            "A 45-minute prep meeting for a retrospective adds ceremony without value. "
-            "Retrospective notes can be crowd-sourced asynchronously via a shared doc. "
-            "Team members can add bullet points in 5 minutes at their own pace."
-        ),
-        "converted_tasks": [
-            "Create shared retro doc in Notion — team adds items async by EOD Thursday",
-            "Assign Elena Rostova to summarize top 3 themes before Friday retro",
-        ],
-    },
-    {
-        "id": 4,
-        "title": "ML Pipeline Production Deployment Decision",
-        "attendees": ["Riya Sharma", "David Kim", "Alex Rivera"],
-        "duration_min": 60,
-        "verdict": "necessary",
-        "reason": (
-            "The ML Pipeline is at 71/100 risk with 7 days left. "
-            "Deployment strategy, rollback plans, and model versioning require a synchronous decision "
-            "between Riya Sharma (ML), David Kim (DevOps), and Alex Rivera (API integration). "
-            "Async communication would introduce ambiguity on a high-stakes production rollout."
-        ),
-        "converted_tasks": [],
-    },
-]
-
-
 @app.get("/api/meetings")
-def get_meetings():
-    unnecessary = sum(1 for m in MEETINGS_DATA if m["verdict"] == "unnecessary")
-    necessary = sum(1 for m in MEETINGS_DATA if m["verdict"] == "necessary")
-    total_mins = sum(m["duration_min"] for m in MEETINGS_DATA)
-    unnecessary_mins = sum(m["duration_min"] for m in MEETINGS_DATA if m["verdict"] == "unnecessary")
+def get_meetings(db: Session = Depends(get_db)):
+    members = db.query(TeamMember).all()
+    projects = db.query(Project).all()
+
+    meetings = []
+    high_meeting_members = [m.name for m in sorted(members, key=lambda x: x.meeting_load, reverse=True)[:5]]
+    if high_meeting_members:
+        meetings.append({
+            "id": 1,
+            "title": "Daily Status Update — Engineering Sync",
+            "attendees": high_meeting_members,
+            "duration_min": 60,
+            "verdict": "unnecessary",
+            "reason": (
+                "A 60-minute synchronous daily standup across squad leads is costing significant engineer-hours. "
+                "This status information can be captured asynchronously in Slack or GitHub PR digests, saving 20+ hours of focus weekly."
+            ),
+            "converted_tasks": [
+                "Create daily async standup Slack channel with status update template",
+                "Set up automated GitHub PR digest to replace manual updates",
+                "Schedule weekly 30-min sync for blockers only",
+            ],
+        })
+
+    for idx, p in enumerate(projects[:3], start=2):
+        attendees = [m.name for m in sorted(members, key=lambda x: (x.workload, x.performance_rating))[:3]]
+        is_at_risk = p.risk_score >= 60
+        meetings.append({
+            "id": idx,
+            "title": f"{p.name} Architecture & Alignment Review",
+            "attendees": attendees,
+            "duration_min": 60 if is_at_risk else 45,
+            "verdict": "necessary" if is_at_risk else "unnecessary",
+            "reason": (
+                f"{p.name} is currently at a {round(p.risk_score)}/100 risk score with {p.deadline_days} days to deadline. "
+                f"{'Synchronous cross-team alignment between key engineers is required to unblock delivery.' if is_at_risk else 'Progress is stable and velocity is on track; this can be handled asynchronously via shared notes.'}"
+            ),
+            "converted_tasks": [] if is_at_risk else [f"Convert {p.name} bi-weekly review to shared Notion update"],
+        })
+
+    unnecessary = sum(1 for m in meetings if m["verdict"] == "unnecessary")
+    necessary = sum(1 for m in meetings if m["verdict"] == "necessary")
+    total_mins = sum(m["duration_min"] for m in meetings)
+    unnecessary_mins = sum(m["duration_min"] for m in meetings if m["verdict"] == "unnecessary")
 
     return {
-        "meetings": MEETINGS_DATA,
-        "total_count": len(MEETINGS_DATA),
+        "meetings": meetings,
+        "total_count": len(meetings),
         "unnecessary_count": unnecessary,
         "necessary_count": necessary,
         "total_minutes": total_mins,
         "wasted_minutes": unnecessary_mins,
         "wasted_hours_per_week": round(unnecessary_mins / 60, 1),
-        "focus_hours_saved": round(unnecessary_mins * len(MEETINGS_DATA) / 60 / len(MEETINGS_DATA), 1),
+        "focus_hours_saved": round(unnecessary_mins * len(meetings) / 60 / len(meetings), 1) if meetings else 0,
     }
 
 

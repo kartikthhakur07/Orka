@@ -12,14 +12,16 @@ from model import Base, TeamMember, Task, Project, Sprint, WorkDNA, User
 
 load_dotenv()
 
-# Neon Serverless PostgreSQL Connection String
-NEON_DATABASE_URL = "postgresql://neondb_owner:npg_EJHgmOUZy9l7@ep-crimson-surf-az9agddm-pooler.c-3.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+# Neon Serverless PostgreSQL Connection String (psycopg2 driver)
+NEON_DATABASE_URL = "postgresql+psycopg2://neondb_owner:npg_EJHgmOUZy9l7@ep-crimson-surf-az9agddm-pooler.c-3.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
 
 DATABASE_URL = os.getenv("DATABASE_URL", NEON_DATABASE_URL)
 
-# Standardize postgresql scheme for SQLAlchemy 1.4 / 2.0
+# Standardize postgresql driver scheme to psycopg2 for SQLAlchemy 2.0+
 if DATABASE_URL.startswith("postgres://"):
-    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+psycopg2://", 1)
+elif DATABASE_URL.startswith("postgresql://") and not DATABASE_URL.startswith("postgresql+"):
+    DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+psycopg2://", 1)
 
 engine_kwargs = {}
 if "sqlite" in DATABASE_URL:

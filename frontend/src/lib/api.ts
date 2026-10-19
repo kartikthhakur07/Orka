@@ -1,4 +1,14 @@
-const API = (process.env.NEXT_PUBLIC_API_URL || 'https://orkapi.onrender.com').replace(/\/$/, '')
+function getApiUrl(endpoint: string): string {
+  let base = process.env.NEXT_PUBLIC_API_URL
+  if (!base) {
+    if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+      base = 'http://localhost:8000'
+    } else {
+      base = 'https://orkapi.onrender.com'
+    }
+  }
+  return `${base.replace(/\/$/, '')}${endpoint}`
+}
 
 async function fetchWithRetry(url: string, options: RequestInit = {}, retries = 2, delayMs = 1500): Promise<any> {
   try {
@@ -22,24 +32,24 @@ async function fetchWithRetry(url: string, options: RequestInit = {}, retries = 
   }
 }
 
-const get = (endpoint: string) => fetchWithRetry(`${API}${endpoint}`)
+const get = (endpoint: string) => fetchWithRetry(getApiUrl(endpoint))
 
 const post = (endpoint: string, data: any) =>
-  fetchWithRetry(`${API}${endpoint}`, {
+  fetchWithRetry(getApiUrl(endpoint), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   })
 
 const patch = (endpoint: string, data: any) =>
-  fetchWithRetry(`${API}${endpoint}`, {
+  fetchWithRetry(getApiUrl(endpoint), {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   })
 
 const del = (endpoint: string) =>
-  fetchWithRetry(`${API}${endpoint}`, {
+  fetchWithRetry(getApiUrl(endpoint), {
     method: 'DELETE',
   })
 
