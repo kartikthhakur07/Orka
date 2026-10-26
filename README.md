@@ -469,3 +469,63 @@ MIT License. Copyright (c) 2026 ORKA Contributors.
 ---
 
 **ORKA — Smarter engineering-team execution powered by explainable AI and Neon PostgreSQL.**
+
+
+<!-- LOGs
+
+02:35:09.379 Running build in Washington, D.C., USA (East) – iad1
+02:35:09.380 Build machine configuration: 2 cores, 8 GB
+02:35:09.504 Cloning github.com/j25aiml192-hash/Cirra (Branch: main, Commit: 4f70cf8)
+02:35:09.910 Cloning completed: 406.000ms
+02:35:10.266 Restored build cache from previous deployment (FgchLQSQT29rDkbTZFiNDDZjf1Eo)
+02:35:10.543 Running "vercel build"
+02:35:10.553 Vercel CLI 65.1.0
+02:35:10.813 Running "install" command: `cd frontend && npm install`...
+02:35:11.351 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+02:35:17.790 npm warn deprecated recharts@2.15.4: 1.x and 2.x branches are no longer active. Bump to Recharts v3 to receive latest features and bugfixes. See https://github.com/recharts/recharts/wiki/3.0-migration-guide
+02:35:19.416 
+02:35:19.416 added 11 packages, and audited 216 packages in 8s
+02:35:19.416 
+02:35:19.416 32 packages are looking for funding
+02:35:19.416   run `npm fund` for details
+02:35:19.602 
+02:35:19.602 8 vulnerabilities (3 moderate, 2 high, 3 critical)
+02:35:19.602 
+02:35:19.602 To address all issues (including breaking changes), run:
+02:35:19.603   npm audit fix --force
+02:35:19.603 
+02:35:19.603 Run `npm audit` for details.
+02:35:19.656 Detected Next.js version: 14.2.0
+02:35:19.657 Running "cd frontend && npm run build"
+02:35:19.812 npm warn Unknown env config "cache-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+02:35:19.823 
+02:35:19.823 > frontend@0.1.0 build
+02:35:19.823 > next build
+02:35:19.823 
+02:35:20.706   ▲ Next.js 14.2.0
+02:35:20.706 
+02:35:20.731    Creating an optimized production build ...
+02:35:29.084  ✓ Compiled successfully
+02:35:29.085    Skipping linting
+02:35:29.085    Checking validity of types ...
+02:35:34.677 Failed to compile.
+02:35:34.677 
+02:35:34.677 ./src/app/(app)/dashboard/page.tsx:166:28
+02:35:34.677 Type error: Property 'mom_change' does not exist on type 'DashboardSummary'.
+02:35:34.677 
+02:35:34.677   164 |                       {totalSpendFormatted}
+02:35:34.677   165 |                     </span>
+02:35:34.678 > 166 |                     {data?.mom_change !== undefined && data.mom_change !== 0 ? (
+02:35:34.678       |                            ^
+02:35:34.678   167 |                       <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#F3F4F6] text-[#2B2B2B] border border-[#E5E7EB]">
+02:35:34.678   168 |                         {data.mom_change <= 0 ? (
+02:35:34.678   169 |                           <TrendingDown className="w-3.5 h-3.5 text-[#4D4D4D]" />
+02:35:34.722 npm error Lifecycle script `build` failed with error:
+02:35:34.723 npm error code 1
+02:35:34.723 npm error path /vercel/path0/frontend
+02:35:34.724 npm error workspace frontend@0.1.0
+02:35:34.724 npm error location /vercel/path0/frontend
+02:35:34.725 npm error command failed
+02:35:34.725 npm error command sh -c next build
+02:35:34.744 Error: [BUILD_UTILS_SPAWN_1] Command "cd frontend && npm run build" exited with 1
+ -->
