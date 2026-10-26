@@ -471,7 +471,7 @@ MIT License. Copyright (c) 2026 ORKA Contributors.
 **ORKA — Smarter engineering-team execution powered by explainable AI and Neon PostgreSQL.**
 
 
-<!-- LOGs
+LOGs
 
 02:35:09.379 Running build in Washington, D.C., USA (East) – iad1
 02:35:09.380 Build machine configuration: 2 cores, 8 GB
@@ -528,4 +528,3 @@ MIT License. Copyright (c) 2026 ORKA Contributors.
 02:35:34.725 npm error command failed
 02:35:34.725 npm error command sh -c next build
 02:35:34.744 Error: [BUILD_UTILS_SPAWN_1] Command "cd frontend && npm run build" exited with 1
- -->
